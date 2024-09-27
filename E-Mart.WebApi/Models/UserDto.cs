@@ -1,0 +1,16 @@
+﻿using E_Mart.Domain.Users;
+using System.ComponentModel.DataAnnotations;
+
+namespace E_Mart.WebApi.Models;
+
+public class UserDto
+{
+    [Key]
+    public int Id { get; set; }
+    public string UserName { get; set; }
+    public string Email { get; set; }
+    public string PasswordHash { get; set; }
+    public string RoleName { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
