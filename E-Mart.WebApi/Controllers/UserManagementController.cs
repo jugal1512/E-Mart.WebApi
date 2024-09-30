@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using E_Mart.Domain.Customer;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 
 namespace E_Mart.WebApi.Controllers;
 
@@ -18,39 +21,13 @@ public class UserManagementController : ControllerBase
         _roleService = roleService;
         _userService = userService;
     }
+    
     [HttpPost]
-    public async Task<IActionResult> CreateRole([FromForm]RoleDto roleDto)
-    {
-        try {
-            var roleModel = _mapper.Map<Role>(roleDto);
-            var roleExists = await _roleService.RoleExists(roleModel.RoleName);
-            if (roleExists != null)
-            {
-                return Ok(new Response { Status = "Error", Message = "Role Already Have Exists!" });
-            }
-            else
-            {
-                var role = await _roleService.CreateRole(roleModel);
-                if (role != null)
-
-                {
-                    return Ok(new Response { Status = "Success", Message = "Role Created Is Successfully." });
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role Not Created !" });
-                }
-            }
-        }
-        catch (Exception ex) {
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
-        }
-    }
-
-    [HttpPost]
+    [Route("RegisterUser")]
     public async Task<IActionResult> RegisterUser(UserDto userDto)
     {
-        try {
+        try
+        {
             var userExists = await _userService.UserExists(userDto.UserName);
             if (userExists != null)
             {
@@ -59,19 +36,48 @@ public class UserManagementController : ControllerBase
             else
             {
                 var userRoleExists = await _roleService.RoleExists(userDto.RoleName);
-                if (userRoleExists != null)
+                if (userRoleExists == null)
                 {
-                       
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role doesn't Exists!" });
                 }
-                else 
-                { 
-                       
+                userDto.RoleId = userRoleExists.Id;
+                var PasswordHash = await HashPasword(userDto.PasswordHash);
+                userDto.PasswordHash = PasswordHash;
+                var user = _mapper.Map<User>(userDto);
+                user.CreatedAt = DateTime.Now;
+                user.UpdatedAt = null;
+                var addUser = await _userService.RegisterUser(user);
+                if (addUser != null)
+                {
+                    return Ok(new Response { Status = "Success", Message = "User Created Is Successfully." });
                 }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User can not Created!" });
+                }                
             }
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
-        return Ok();
+    }
+
+    private async Task<string> HashPasword(string password)
+    { 
+        byte[] salt = new byte[128/8];
+        using (var rng = RandomNumberGenerator.Create())
+        { 
+            rng.GetBytes(salt);
+        }
+
+        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: salt,
+                prf:KeyDerivationPrf.HMACSHA256,
+                iterationCount:100000,
+                numBytesRequested:256/8
+            ));
+        return $"{Convert.ToBase64String(salt)}:{hashed}";
     }
 }
