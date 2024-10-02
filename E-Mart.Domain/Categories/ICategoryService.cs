@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using E_Mart.Domain.Base;
 
 namespace E_Mart.Domain.Categories;
-public interface ICategoryService
+public interface ICategoryService : IGenericService<Category>
 {
+    Task<Category> GetCategoryByName(string categoryName);
 }

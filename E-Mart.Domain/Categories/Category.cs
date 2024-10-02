@@ -1,11 +1,10 @@
-﻿using E_Mart.Domain.Products;
+﻿using E_Mart.Domain.Base;
+using E_Mart.Domain.Products;
 using System.ComponentModel.DataAnnotations;
 
 namespace E_Mart.Domain.Categories;
-public class Category
+public class Category : BaseEntity
 {
-    [Key]
-    public int Id { get; set; }
     public string CategoryName { get; set; }
     public string Description { get; set; }
     public string CategoryImage { get; set; }
