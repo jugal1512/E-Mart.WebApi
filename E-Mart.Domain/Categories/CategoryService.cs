@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,5 +19,10 @@ public class CategoryService : GenericService<Category> , ICategoryService
     public async Task<Category> GetCategoryByName(string categoryName)
     {
         return await _categoryRepository.GetCategoryByName(categoryName);
+    }
+
+    public async Task<List<Category>> SearchCategory(Expression<Func<Category, bool>> predicate)
+    {
+        return await _categoryRepository.SearchCategory(predicate);
     }
 }
