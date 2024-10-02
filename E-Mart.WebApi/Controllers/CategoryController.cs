@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Categories;
 using E_Mart.WebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace E_Mart.WebApi.Controllers;
 [ApiController]
@@ -36,6 +38,7 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [Route("AddCategory")]
     public async Task<IActionResult> AddCategory([FromForm] CategoryDto categoryDto)
@@ -57,6 +60,7 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     [Route("UpdateCategory")]
     public async Task<IActionResult> UpdateCategory([FromForm] CategoryDto categoryDto)
@@ -82,6 +86,7 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("DeleteCategory/{id}")]
     public async Task<IActionResult> DeleteCategory(int id)
@@ -95,6 +100,25 @@ public class CategoryController : ControllerBase
         }
         catch (Exception ex)
         {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("SearchCategory")]
+    public async Task<IActionResult> SearchCategory(string categoryName)
+    {
+        try
+        {
+            Expression<Func<Category, bool>> predicate = c => c.CategoryName.ToLower().Contains(categoryName.ToLower());
+            var category = await _categoryService.SearchCategory(predicate);
+            if (category == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category Not Found!" });
+            }
+            return Ok(category);
+        }
+        catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
     }
