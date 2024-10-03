@@ -2,6 +2,8 @@
 using E_Mart.Domain.Customer;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models;
+using E_Mart.WebApi.Models.Response;
+using E_Mart.WebApi.Models.User;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;

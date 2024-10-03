@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Categories;
-using E_Mart.WebApi.Models;
+using E_Mart.WebApi.Models.Category;
+using E_Mart.WebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;

@@ -24,5 +24,4 @@ public class EMartDbContext:DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(
             Assembly.GetAssembly(typeof(EMartDbContext)));
     }
-
 }

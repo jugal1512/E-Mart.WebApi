@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models;
+using E_Mart.WebApi.Models.Authentication;
+using E_Mart.WebApi.Models.Response;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
