@@ -1,4 +1,4 @@
-﻿namespace E_Mart.WebApi.Models;
+﻿namespace E_Mart.WebApi.Models.Response;
 
 public class Response
 {

@@ -17,12 +17,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasKey(x => x.Id);
         builder.Property(p => p.ProductName).IsRequired();
         builder.Property(p => p.ProductDescription).IsRequired().HasMaxLength(250);
-        builder.Property(p => p.Price).IsRequired();
+        builder.Property(p => p.OriginalPrice).IsRequired();
+        builder.Property(p => p.ActualPrice).IsRequired();
         builder.Property(p => p.Stock).IsRequired();
         builder.Property(p => p.CategoryId).IsRequired();
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.UpdatedAt);
-        builder.Property(p => p.IsActive).IsRequired();
+        builder.Property(p => p.IsActive).IsRequired().HasColumnType("bit").HasDefaultValue(true);
         builder.Property(p => p.ProductImage).IsRequired();
         builder.Property(p => p.CreatedBy).IsRequired();
         builder.Property(p => p.UpdatedBy);

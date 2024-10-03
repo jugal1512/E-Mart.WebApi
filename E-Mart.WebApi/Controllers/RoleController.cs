@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models;
+using E_Mart.WebApi.Models.Response;
+using E_Mart.WebApi.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

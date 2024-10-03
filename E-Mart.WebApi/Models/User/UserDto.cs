@@ -1,7 +1,7 @@
 ﻿using E_Mart.Domain.Users;
 using System.ComponentModel.DataAnnotations;
 
-namespace E_Mart.WebApi.Models;
+namespace E_Mart.WebApi.Models.User;
 
 public class UserDto
 {

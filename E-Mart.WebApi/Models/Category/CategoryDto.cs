@@ -1,6 +1,6 @@
 ﻿using E_Mart.Domain.Products;
 
-namespace E_Mart.WebApi.Models;
+namespace E_Mart.WebApi.Models.Category;
 
 public class CategoryDto
 {
@@ -8,5 +8,4 @@ public class CategoryDto
     public string CategoryName { get; set; }
     public string Description { get; set; }
     public IFormFile? CategoryImage { get; set; }
-    public bool? IsActive { get; set; }
 }
