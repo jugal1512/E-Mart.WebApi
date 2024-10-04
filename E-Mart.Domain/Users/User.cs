@@ -13,4 +13,5 @@ public class User
     public DateTime? UpdatedAt { get; set; }
 
     public virtual Role Role { get; set; }
+    public virtual List<UserAddress> UserAddresses { get; set; }
 }
