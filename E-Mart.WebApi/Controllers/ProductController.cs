@@ -4,7 +4,9 @@ using E_Mart.Domain.Products;
 using E_Mart.WebApi.Models;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace E_Mart.WebApi.Controllers;
@@ -22,9 +24,25 @@ public class ProductController : ControllerBase
         _mapper = mapper;
     }
 
+    [HttpGet]
+    [Route("GetAllProducts")]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        try
+        {
+            var products = await _productService.GetAllAsync();
+            var productList = _mapper.Map<List<ProductViewModal>>(products);
+            return Ok(productList);
+        }
+        catch (Exception ex) {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "Admin,Seller")]
     [HttpPost]
     [Route("AddProduct")]
-    public async Task<IActionResult> AddProduct([FromForm]ProductDto productDto)
+    public async Task<IActionResult> AddProduct([FromForm] ProductDto productDto)
     {
         try
         {
@@ -43,17 +61,17 @@ public class ProductController : ControllerBase
             product.ProductImage = productImageNameList;
             product.CreatedBy = userName;
             await _productService.AddAsync(product);
-            return Ok(new Response { Status = "Success", Message = "Product Add Successfully."});
+            return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
     }
 
-
+    [Authorize(Roles = "Admin,Seller")]
     [HttpPut]
     [Route("UpdateProduct")]
-    public async Task<IActionResult> UpdateProduct(ProductDto productDto)
+    public async Task<IActionResult> UpdateProduct([FromForm]ProductDto productDto)
     {
         try
         {
@@ -65,7 +83,7 @@ public class ProductController : ControllerBase
                 if (categoryExist == null) {
                     return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category is Not Exists!" });
                 }
-                productDto.CategoryId = productExist.Id;
+                productDto.CategoryId = productExist.CategoryId;
             }
             var newProductImageNameList = productExist.ProductImage;
             if (productDto.ProductImage != null && productDto.ProductImage.Count > 0)
@@ -76,15 +94,20 @@ public class ProductController : ControllerBase
                 newProductImageNameList = await SaveProductImages(productDto.ProductImage);
             }
             var product = _mapper.Map<Product>(productDto);
+            product.IsActive = true;
             product.ProductImage = newProductImageNameList;
+            product.CreatedAt = productExist.CreatedAt;
+            product.CreatedBy = productExist.CreatedBy;
             product.UpdatedBy = userName;
-            return Ok(product);
+            await _productService.UpdateAsync(product);
+            return Ok(new Response { Status = "Success", Message = "Product Update Successfully." });
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
     }
 
+    [Authorize(Roles = "Admin,Seller")]
     [HttpDelete]
     [Route("DeleteProduct/{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
@@ -101,6 +124,19 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("SearchProduct")]
+    public async Task<IActionResult> SearchProduct(string productName)
+    {
+        try {
+            Expression<Func<Product, bool>> predicate = p => p.ProductName.ToLower().Contains(productName.ToLower());
+            var productList = await _productService.SearchProduct(predicate);
+            return Ok(productList);
+        }
+        catch (Exception ex) {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
     private async Task<string> SaveProductImages(List<IFormFile> productImages)
     {
         List<string> productImageList = new List<string>();

@@ -15,11 +15,32 @@ public class AutoMapperProfile:Profile
 {
     public AutoMapperProfile()
     {
-        CreateMap<Role,RoleDto>().ReverseMap();
-        CreateMap<User,UserDto>().ReverseMap();
-        CreateMap<Login,LoginDto>().ReverseMap();
-        CreateMap<Category,CategoryDto>().ReverseMap();
+        CreateRoleMaps();
+        CreateUserMaps();
+        CreateCategoryMaps();
+        CreateProductMaps();
+    }
+
+    private void CreateRoleMaps()
+    {
+        CreateMap<Role, RoleDto>().ReverseMap();
+    }
+
+    private void CreateUserMaps()
+    {
+        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<Login, LoginDto>().ReverseMap();
+    }
+
+    private void CreateCategoryMaps()
+    {
+        CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Category, CategoryViewModal>().ReverseMap();
+    }
+
+    private void CreateProductMaps()
+    {
         CreateMap<Product, ProductDto>().ReverseMap();
+        CreateMap<Product, ProductViewModal>().ReverseMap();
     }
 }

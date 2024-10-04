@@ -12,4 +12,5 @@ public class UserDto
     public string PasswordHash { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; }
+    public virtual List<UserAddressDto> UserAddresses { get; set; }
 }
