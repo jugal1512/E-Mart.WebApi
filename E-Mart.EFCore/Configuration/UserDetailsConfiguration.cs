@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Mart.EFCore.Configuration;
-public class UserAddressesConfiguration : IEntityTypeConfiguration<UserAddress>
+public class UserDetailsConfiguration : IEntityTypeConfiguration<UserDetails>
 {
-    public void Configure(EntityTypeBuilder<UserAddress> builder)
+    public void Configure(EntityTypeBuilder<UserDetails> builder)
     {
-        builder.ToTable("UserAddresses");
+        builder.ToTable("UserDetails");
         builder.HasKey(ua => ua.Id);
         builder.Property(ua => ua.UserId);
         builder.Property(ua => ua.Address_line1).IsRequired().HasMaxLength(250);

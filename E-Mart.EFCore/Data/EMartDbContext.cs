@@ -14,9 +14,10 @@ public class EMartDbContext:DbContext
     }
 
     public DbSet<User> Users { get; set; }
-    public DbSet<UserAddress> UserAddresses { get; set; }
+    public DbSet<UserDetails> UserDetails { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Sub_Categories> Sub_Categories { get; set; }
     public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

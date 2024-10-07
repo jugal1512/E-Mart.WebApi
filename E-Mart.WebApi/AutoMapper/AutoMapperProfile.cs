@@ -30,6 +30,7 @@ public class AutoMapperProfile:Profile
     {
         CreateMap<User, UserDto>().ReverseMap();
         CreateMap<Login, LoginDto>().ReverseMap();
+        CreateMap<UserDetails, UserDetailsDto>().ReverseMap();
     }
 
     private void CreateCategoryMaps()
@@ -37,6 +38,7 @@ public class AutoMapperProfile:Profile
         CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Category, CategoryViewModal>().ReverseMap();
     }
+
 
     private void CreateProductMaps()
     {

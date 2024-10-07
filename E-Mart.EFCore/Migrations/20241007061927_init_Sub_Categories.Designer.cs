@@ -4,6 +4,7 @@ using E_Mart.EFCore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Mart.EFCore.Migrations
 {
     [DbContext(typeof(EMartDbContext))]
-    partial class EMartDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007061927_init_Sub_Categories")]
+    partial class init_Sub_Categories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,77 +24,6 @@ namespace E_Mart.EFCore.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("E_Mart.Domain.Carts.Cart", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("Total")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Carts", (string)null);
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Carts.Cart_Item", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CartId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CartId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Cart_Items", (string)null);
-                });
 
             modelBuilder.Entity("E_Mart.Domain.Categories.Category", b =>
                 {
@@ -210,118 +142,6 @@ namespace E_Mart.EFCore.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Details", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("TotalAmount")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Order_Details", (string)null);
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Item", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("orderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("orderId");
-
-                    b.ToTable("Order_Items", (string)null);
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Payments.Payment_Details", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("Payment_Details", (string)null);
                 });
 
             modelBuilder.Entity("E_Mart.Domain.Products.Product", b =>
@@ -448,74 +268,6 @@ namespace E_Mart.EFCore.Migrations
                     b.ToTable("UserDetails", (string)null);
                 });
 
-            modelBuilder.Entity("E_Mart.Domain.Wishlists.wishlist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Wishlists", (string)null);
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Carts.Cart", b =>
-                {
-                    b.HasOne("E_Mart.Domain.Customer.User", "User")
-                        .WithMany("Carts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Carts.Cart_Item", b =>
-                {
-                    b.HasOne("E_Mart.Domain.Carts.Cart", "Cart")
-                        .WithMany("Cart_Items")
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("E_Mart.Domain.Products.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("E_Mart.Domain.Categories.Sub_Categories", b =>
                 {
                     b.HasOne("E_Mart.Domain.Categories.Category", "Category")
@@ -536,47 +288,6 @@ namespace E_Mart.EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Details", b =>
-                {
-                    b.HasOne("E_Mart.Domain.Customer.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Item", b =>
-                {
-                    b.HasOne("E_Mart.Domain.Products.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("E_Mart.Domain.OrderDetails.Order_Details", "Order_Details")
-                        .WithMany("Order_Items")
-                        .HasForeignKey("orderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Order_Details");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Payments.Payment_Details", b =>
-                {
-                    b.HasOne("E_Mart.Domain.OrderDetails.Order_Details", "OrderDetails")
-                        .WithOne("Payment_Details")
-                        .HasForeignKey("E_Mart.Domain.Payments.Payment_Details", "OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("E_Mart.Domain.Products.Product", b =>
@@ -601,30 +312,6 @@ namespace E_Mart.EFCore.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("E_Mart.Domain.Wishlists.wishlist", b =>
-                {
-                    b.HasOne("E_Mart.Domain.Products.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("E_Mart.Domain.Customer.User", "User")
-                        .WithMany("Wishlists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.Carts.Cart", b =>
-                {
-                    b.Navigation("Cart_Items");
-                });
-
             modelBuilder.Entity("E_Mart.Domain.Categories.Category", b =>
                 {
                     b.Navigation("Sub_Categories");
@@ -637,19 +324,7 @@ namespace E_Mart.EFCore.Migrations
 
             modelBuilder.Entity("E_Mart.Domain.Customer.User", b =>
                 {
-                    b.Navigation("Carts");
-
                     b.Navigation("UserDetails");
-
-                    b.Navigation("Wishlists");
-                });
-
-            modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Details", b =>
-                {
-                    b.Navigation("Order_Items");
-
-                    b.Navigation("Payment_Details")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("E_Mart.Domain.Users.Role", b =>

@@ -1,6 +1,6 @@
 ﻿namespace E_Mart.WebApi.Models.User;
 
-public class UserAddressDto
+public class UserDetailsDto
 {
     public int UserId { get; set; }
     public string Address_line1 { get; set; }

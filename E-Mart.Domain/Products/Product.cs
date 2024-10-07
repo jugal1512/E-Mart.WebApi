@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using E_Mart.Domain.Base;
+﻿using E_Mart.Domain.Base;
+using E_Mart.Domain.Carts;
 using E_Mart.Domain.Categories;
+using E_Mart.Domain.Wishlists;
 
 namespace E_Mart.Domain.Products;
 public class Product : BaseEntity
@@ -14,5 +15,5 @@ public class Product : BaseEntity
     public string ProductImage { get; set; }
     public string CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
-    public virtual Category Category { get; set; }
+    public virtual Sub_Categories Sub_Categories { get; set; }
 }

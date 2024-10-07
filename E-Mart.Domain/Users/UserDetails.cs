@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace E_Mart.Domain.Users
 {
-    public class UserAddress
+    public class UserDetails
     {
         [Key]
         public int Id { get; set; }
