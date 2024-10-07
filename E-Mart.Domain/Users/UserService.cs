@@ -23,4 +23,9 @@ public class UserService : IUserService
     {
         return await _userRepository.RegisterUser(user);
     }
+
+    public async Task<UserDetails> AddUserAddress(UserDetails userAddress)
+    {
+        return await _userRepository.AddUserAddress(userAddress);
+    }
 }

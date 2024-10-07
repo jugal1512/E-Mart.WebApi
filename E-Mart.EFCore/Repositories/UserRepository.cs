@@ -30,4 +30,10 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<UserDetails> AddUserAddress(UserDetails userAddress)
+    {
+        await _eMartDbContext.UserDetails.AddAsync(userAddress);
+        await _eMartDbContext.SaveChangesAsync();
+        return userAddress;
+    }
 }

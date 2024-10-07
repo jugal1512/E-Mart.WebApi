@@ -27,10 +27,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.ProductImage).IsRequired();
         builder.Property(p => p.CreatedBy).IsRequired();
         builder.Property(p => p.UpdatedBy);
-        
+        builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false);
+
         builder
-            .HasOne(p => p.Category)
-            .WithMany(c => c.Products)
+            .HasOne(p => p.Sub_Categories)
+            .WithMany(sc => sc.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
     }

@@ -4,6 +4,7 @@ using E_Mart.EFCore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Mart.EFCore.Migrations
 {
     [DbContext(typeof(EMartDbContext))]
-    partial class EMartDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007095141_init_orderAndPayment")]
+    partial class init_orderAndPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,6 +232,9 @@ namespace E_Mart.EFCore.Migrations
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("int");
+
                     b.Property<double>("TotalAmount")
                         .HasColumnType("float");
 
@@ -275,8 +281,6 @@ namespace E_Mart.EFCore.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
 
                     b.HasIndex("orderId");
 
@@ -551,12 +555,6 @@ namespace E_Mart.EFCore.Migrations
 
             modelBuilder.Entity("E_Mart.Domain.OrderDetails.Order_Item", b =>
                 {
-                    b.HasOne("E_Mart.Domain.Products.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("E_Mart.Domain.OrderDetails.Order_Details", "Order_Details")
                         .WithMany("Order_Items")
                         .HasForeignKey("orderId")
@@ -564,8 +562,6 @@ namespace E_Mart.EFCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Order_Details");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("E_Mart.Domain.Payments.Payment_Details", b =>

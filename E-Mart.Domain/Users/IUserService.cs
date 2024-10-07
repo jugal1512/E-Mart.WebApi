@@ -5,4 +5,5 @@ public interface IUserService
 {
     Task<User> UserExists(string userName);
     Task<User> RegisterUser(User user);
+    Task<UserDetails> AddUserAddress(UserDetails userAddress);
 }

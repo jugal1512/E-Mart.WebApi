@@ -3,8 +3,10 @@ using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
 using E_Mart.EFCore.Data;
 using E_Mart.EFCore.Repositories;
+using E_Mart.WebApi.Utilities.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -29,6 +31,10 @@ public class Startup
 
         //Add Automapper
         services.AddAutoMapper(typeof(Startup));
+
+        //Email Service
+        services.Configure<MailSettings>(_configuration.GetSection("MailSettings"));
+        services.AddTransient<IEmailService, EmailService>();
 
         //Add Dependency Injection
         services.AddScoped<RoleService>();

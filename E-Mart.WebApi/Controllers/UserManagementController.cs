@@ -4,6 +4,7 @@ using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models;
 using E_Mart.WebApi.Models.Response;
 using E_Mart.WebApi.Models.User;
+using E_Mart.WebApi.Utilities.Email;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
@@ -16,12 +17,14 @@ public class UserManagementController : ControllerBase
 {
     private readonly RoleService _roleService;
     private readonly UserService _userService;
+    private readonly IEmailService _emailService;
     private readonly IMapper _mapper;
-    public UserManagementController(IMapper mapper,RoleService roleService,UserService userService)
+    public UserManagementController(IMapper mapper,RoleService roleService,UserService userService, IEmailService emailService)
     {
         _mapper = mapper;
         _roleService = roleService;
         _userService = userService;
+        _emailService = emailService;
     }
     
     [HttpPost]
@@ -46,7 +49,7 @@ public class UserManagementController : ControllerBase
                 var PasswordHash = await HashPasword(userDto.PasswordHash);
                 userDto.PasswordHash = PasswordHash;
                 var user = _mapper.Map<User>(userDto);
-                user.CreatedAt = DateTime.Now;
+                user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = null;
                 var addUser = await _userService.RegisterUser(user);
                 if (addUser != null)
@@ -65,12 +68,29 @@ public class UserManagementController : ControllerBase
         }
     }
 
-    public async Task<IActionResult> AddUserDetails(UserAddressDto userAddress)
+    [HttpPost]
+    [Route("AddUserDetails")]
+    public async Task<IActionResult> AddUserDetails(UserDetailsDto userDetailsDto)
     {
         try
         {
+            var userDetails = _mapper.Map<UserDetails>(userDetailsDto);
+            await _userService.AddUserAddress(userDetails);
+            return Ok(new Response { Status = "Success",Message = "User Details Added Successfully."});
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
 
-            return Ok();
+    [HttpPost]
+    [Route("SendEmail")]
+    public async Task<IActionResult> SendEmail(MailRequest mailRequest)
+    {
+        try {
+            await _emailService.SendEmailAsync(mailRequest);
+            return Ok(new Response { Status = "Success", Message = "User Details Added Successfully." });
         }
         catch (Exception ex)
         {

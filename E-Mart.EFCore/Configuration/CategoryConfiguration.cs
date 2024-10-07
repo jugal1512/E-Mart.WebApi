@@ -14,6 +14,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.CategoryImage).IsRequired();
         builder.Property(c => c.CreatedAt).IsRequired();
         builder.Property(c => c.UpdatedAt);
+        builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false); ;
         builder.Property(c => c.IsActive).IsRequired().HasColumnType("bit").HasDefaultValue(true);
     }
 }

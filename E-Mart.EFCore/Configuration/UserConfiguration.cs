@@ -18,9 +18,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UpdatedAt);
 
         builder
-            .HasMany(u => u.UserAddresses)
+            .HasMany(u => u.UserDetails)
             .WithOne(ua => ua.User)
             .HasForeignKey(ua => ua.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasMany(u => u.Wishlists)
+            .WithOne(w => w.User)
+            .HasForeignKey(w => w.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasMany(u => u.Carts)
+            .WithOne(c => c.User)
+            .HasForeignKey(u => u.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
