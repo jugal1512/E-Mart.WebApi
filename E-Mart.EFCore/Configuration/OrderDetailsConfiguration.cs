@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace E_Mart.EFCore.Configuration;
-public class Order_DetailsConfiguration : IEntityTypeConfiguration<Order_Details>
+public class OrderDetailsConfiguration : IEntityTypeConfiguration<OrderDetails>
 {
-    public void Configure(EntityTypeBuilder<Order_Details> builder)
+    public void Configure(EntityTypeBuilder<OrderDetails> builder)
     {
-        builder.ToTable("Order_Details");
+        builder.ToTable("OrderDetails");
         builder.HasKey(o => o.Id);
         builder.Property(o => o.UserId).IsRequired();
         builder.Property(o => o.TotalAmount).IsRequired();
@@ -16,9 +16,9 @@ public class Order_DetailsConfiguration : IEntityTypeConfiguration<Order_Details
         builder.Property(o => o.UpdatedAt);
 
         builder
-            .HasOne(od => od.Payment_Details)
+            .HasOne(od => od.PaymentDetails)
             .WithOne(pd => pd.OrderDetails)
-            .HasForeignKey<Payment_Details>(od => od.OrderId)
+            .HasForeignKey<PaymentDetails>(od => od.OrderId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

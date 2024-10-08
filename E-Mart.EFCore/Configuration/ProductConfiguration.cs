@@ -30,7 +30,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false);
 
         builder
-            .HasOne(p => p.Sub_Categories)
+            .HasOne(p => p.SubCategories)
             .WithMany(sc => sc.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);

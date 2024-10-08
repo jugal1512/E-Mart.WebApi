@@ -15,5 +15,5 @@ public class Product : BaseEntity
     public string ProductImage { get; set; }
     public string CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
-    public virtual Sub_Categories Sub_Categories { get; set; }
+    public virtual SubCategories SubCategories { get; set; }
 }

@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Mart.EFCore.Configuration;
-public class Order_ItemConfiguration : IEntityTypeConfiguration<Order_Item>
+public class Order_ItemConfiguration : IEntityTypeConfiguration<OrderItem>
 {
-    public void Configure(EntityTypeBuilder<Order_Item> builder)
+    public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
-        builder.ToTable("Order_Items");
+        builder.ToTable("OrderItems");
         builder.HasKey(o => o.Id);
         builder.Property(o => o.orderId).IsRequired();
         builder.Property(o => o.ProductId).IsRequired();
@@ -21,8 +21,8 @@ public class Order_ItemConfiguration : IEntityTypeConfiguration<Order_Item>
         builder.Property(o => o.UpdatedAt);
 
         builder
-            .HasOne(oi => oi.Order_Details)
-            .WithMany(od => od.Order_Items)
+            .HasOne(oi => oi.OrderDetails)
+            .WithMany(od => od.OrderItems)
             .HasForeignKey(oi => oi.orderId)
             .OnDelete(DeleteBehavior.Restrict);
     }

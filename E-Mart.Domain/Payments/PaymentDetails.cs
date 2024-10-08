@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Mart.Domain.Payments;
-public class Payment_Details : BaseEntity
+public class PaymentDetails : BaseEntity
 {
     public int OrderId { get; set; }
     public double Amount { get; set; }
     public string Provider { get; set; }
     public bool Status { get; set; }
-    public virtual Order_Details OrderDetails { get; set; }
+    public virtual OrderDetails.OrderDetails OrderDetails { get; set; }
 }

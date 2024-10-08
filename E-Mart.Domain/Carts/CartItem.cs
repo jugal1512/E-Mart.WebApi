@@ -2,7 +2,7 @@
 using E_Mart.Domain.Products;
 
 namespace E_Mart.Domain.Carts;
-public class Cart_Item : BaseEntity
+public class CartItem : BaseEntity
 {
     public int CartId { get; set; }
     public int ProductId { get; set; }
