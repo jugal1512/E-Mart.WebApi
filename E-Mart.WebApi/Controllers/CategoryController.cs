@@ -39,7 +39,6 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost]
     [Route("AddCategory")]
     public async Task<IActionResult> AddCategory([FromForm] CategoryDto categoryDto)
@@ -61,7 +60,6 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPut]
     [Route("UpdateCategory")]
     public async Task<IActionResult> UpdateCategory([FromForm] CategoryDto categoryDto)
@@ -87,7 +85,6 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("DeleteCategory/{id}")]
     public async Task<IActionResult> DeleteCategory(int id)

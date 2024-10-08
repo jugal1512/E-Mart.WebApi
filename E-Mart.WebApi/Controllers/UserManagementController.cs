@@ -84,20 +84,6 @@ public class UserManagementController : ControllerBase
         }
     }
 
-    [HttpPost]
-    [Route("SendEmail")]
-    public async Task<IActionResult> SendEmail(MailRequest mailRequest)
-    {
-        try {
-            await _emailService.SendEmailAsync(mailRequest);
-            return Ok(new Response { Status = "Success", Message = "User Details Added Successfully." });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
-        }
-    }
-
     private async Task<string> HashPasword(string password)
     { 
         byte[] salt = new byte[128/8];

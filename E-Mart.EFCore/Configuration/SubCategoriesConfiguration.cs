@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace E_Mart.EFCore.Configuration;
-public class Sub_CategoriesConfiguration : IEntityTypeConfiguration<Sub_Categories>
+public class SubCategoriesConfiguration : IEntityTypeConfiguration<SubCategories>
 {
-    public void Configure(EntityTypeBuilder<Sub_Categories> builder)
+    public void Configure(EntityTypeBuilder<SubCategories> builder)
     {
-        builder.ToTable("Sub_Categories");
+        builder.ToTable("SubCategories");
         builder.HasKey(c => c.Id);
         builder.Property(c => c.ParentCategoryId).IsRequired();
         builder.Property(c => c.Name).IsRequired();
@@ -18,7 +18,7 @@ public class Sub_CategoriesConfiguration : IEntityTypeConfiguration<Sub_Categori
 
         builder
             .HasOne(sc => sc.Category)
-            .WithMany(c => c.Sub_Categories)
+            .WithMany(c => c.SubCategories)
             .HasForeignKey(sc => sc.ParentCategoryId)
             .OnDelete(DeleteBehavior.Restrict);
     }

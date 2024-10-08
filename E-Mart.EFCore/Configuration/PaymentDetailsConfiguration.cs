@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace E_Mart.EFCore.Configuration;
-public class Payment_DetailsConfiguration : IEntityTypeConfiguration<Payment_Details>
+public class PaymentDetailsConfiguration : IEntityTypeConfiguration<PaymentDetails>
 {
-    public void Configure(EntityTypeBuilder<Payment_Details> builder)
+    public void Configure(EntityTypeBuilder<PaymentDetails> builder)
     {
-        builder.ToTable("Payment_Details");
+        builder.ToTable("PaymentDetails");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.OrderId).IsRequired();
         builder.Property(p => p.Amount).IsRequired();

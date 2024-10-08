@@ -13,5 +13,5 @@ public class Cart : BaseEntity
     public int UserId { get; set; }
     public double Total { get; set; }
     public virtual User User { get; set; }
-    public ICollection<Cart_Item> Cart_Items { get; set; }
+    public ICollection<CartItem> CartItems { get; set; }
 }

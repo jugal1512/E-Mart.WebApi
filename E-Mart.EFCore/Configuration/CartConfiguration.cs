@@ -15,7 +15,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.Property(c => c.UpdatedAt);
 
         builder
-            .HasMany(c => c.Cart_Items)
+            .HasMany(c => c.CartItems)
             .WithOne(ci => ci.Cart)
             .HasForeignKey(ci => ci.CartId)
             .OnDelete(DeleteBehavior.Restrict);

@@ -2,7 +2,7 @@
 using E_Mart.Domain.Products;
 
 namespace E_Mart.Domain.Categories;
-public class Sub_Categories : BaseEntity
+public class SubCategories : BaseEntity
 {
     public int ParentCategoryId { get; set; }
     public string Name { get; set; }
