@@ -4,12 +4,12 @@ using E_Mart.Domain.Users;
 using E_Mart.EFCore.Data;
 using E_Mart.EFCore.Repositories;
 using E_Mart.WebApi.Utilities.Email;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using System.Text;
 
 namespace E_Mart.WebApi;
@@ -35,6 +35,12 @@ public class Startup
         //Email Service
         services.Configure<MailSettings>(_configuration.GetSection("MailSettings"));
         services.AddTransient<IEmailService, EmailService>();
+
+        //firebase
+        string bucketName = "practice-bdcd1.appspot.com"; // Replace with your actual bucket name
+        string firebaseStorageUrl = $"https://firebasestorage.googleapis.com/v0/b/{bucketName}/o/";
+
+        services.AddSingleton(new FirebaseStorageService(bucketName, firebaseStorageUrl));
 
         //Add Dependency Injection
         services.AddScoped<RoleService>();
