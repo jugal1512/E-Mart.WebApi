@@ -5,5 +5,6 @@ public interface IGenericService<T> where T : BaseEntity,new()
     Task<T> GetByIdAsync(int id);
     Task<T> AddAsync(T entity);
     Task<T> UpdateAsync(T entity);
+    Task SoftDeleteAsync(int id);
     Task DeleteAsync(int id);
 }

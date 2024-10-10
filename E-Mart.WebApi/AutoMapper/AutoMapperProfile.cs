@@ -37,6 +37,7 @@ public class AutoMapperProfile:Profile
     {
         CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Category, CategoryViewModal>().ReverseMap();
+        CreateMap<SubCategories, SubCategoryDto>().ReverseMap();
     }
 
 

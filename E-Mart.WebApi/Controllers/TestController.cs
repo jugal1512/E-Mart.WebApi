@@ -1,4 +1,5 @@
-﻿using Firebase.Storage;
+﻿using E_Mart.WebApi.Utilities.FirebaseImageUpload;
+using Firebase.Storage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_Mart.WebApi.Controllers
@@ -13,13 +14,15 @@ namespace E_Mart.WebApi.Controllers
         //private static string authPassword = "Jugal15012002";
 
         private readonly FirebaseStorageService _firebaseStorageService;
-        public TestController(FirebaseStorageService firebaseStorageService)
+        private readonly IFirebaseImageUploadService _firebaseImageUploadService;
+        public TestController(FirebaseStorageService firebaseStorageService,IFirebaseImageUploadService firebaseImageUploadService)
         {
             _firebaseStorageService = firebaseStorageService;
+            _firebaseImageUploadService = firebaseImageUploadService;
         }
 
-        [HttpGet("getUploadImage/{fileName}")]
-        public async Task<IActionResult> GetUploadImage(string fileName)
+        [HttpGet("downloadUploadImage/{fileName}")]
+        public async Task<IActionResult> DownloadUploadImage(string fileName)
         {
             if (string.IsNullOrWhiteSpace(fileName))
             {
@@ -28,31 +31,18 @@ namespace E_Mart.WebApi.Controllers
 
             try
             {
-                var storage = new FirebaseStorage(_firebaseStorageService.BucketName);
-                var downloadUrl = await storage.Child("uploads").Child(fileName).GetDownloadUrlAsync();
+                var fileUploadFolder = "Uploads";
+                var firebaseGetImage = new FirebaseImageUploadModal
+                {
+                    fileUploadFolder = fileUploadFolder,
+                    fileName = fileName,
+                };
+                var downloadUrl = await _firebaseImageUploadService.FirebaseGetUploadImageAsync(firebaseGetImage);
 
                 using (var httpClient = new HttpClient())
                 {
                     var fileBytes = await httpClient.GetByteArrayAsync(downloadUrl);
-
-                    // Determine content type based on file extension
-                    var contentType = "application/octet-stream"; // Default content type
-                    var extension = Path.GetExtension(fileName).ToLowerInvariant();
-                    switch (extension)
-                    {
-                        case ".jpg":
-                        case ".jpeg":
-                            contentType = "image/jpeg";
-                            break;
-                        case ".png":
-                            contentType = "image/png";
-                            break;
-                        case ".pdf":
-                            contentType = "application/pdf";
-                            break;
-                            // Add more cases as needed for other file types
-                    }
-
+                    var contentType = GetContentType(fileName);
                     return File(fileBytes, contentType, fileName);
                 }
             }
@@ -66,7 +56,34 @@ namespace E_Mart.WebApi.Controllers
             }
         }
 
+        [HttpGet("getUploadImage/{fileName}")]
+        public async Task<IActionResult> GetUploadImage(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return BadRequest("Invalid file name.");
+            }
 
+            try
+            {
+                var fileUploadFolder = "Uploads";
+                var firebaseGetImage = new FirebaseImageUploadModal
+                {
+                    fileUploadFolder = fileUploadFolder,
+                    fileName = fileName,
+                };
+                var downloadUrl = await _firebaseImageUploadService.FirebaseGetUploadImageAsync(firebaseGetImage);
+                return Ok(new { FileUrl = downloadUrl });
+            }
+            catch (FirebaseStorageException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Firebase error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving file: {ex.Message}");
+            }
+        }
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFile(IFormFile file)
@@ -78,23 +95,25 @@ namespace E_Mart.WebApi.Controllers
 
             var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(Path.GetTempPath(), fileName);
+            var fileUploadFolder = "Uploads";
 
             try
             {
-                // Save the file temporarily
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
 
-                // Upload to Firebase Storage
-                var storage = new FirebaseStorage(_firebaseStorageService.BucketName);
-                var downloadUrl = await storage
-                    .Child("uploads")
-                    .Child(fileName)
-                    .PutAsync(System.IO.File.OpenRead(filePath));
+                var firebaseImageUpload = new FirebaseImageUploadModal
+                { 
+                    fileUploadFolder = fileUploadFolder,
+                    fileName = fileName,
+                    filePath = filePath,
+                };
 
-                return Ok(new { FileUrl = downloadUrl });
+                var downloadUrl = await _firebaseImageUploadService.FirebaseUploadImageAsync(firebaseImageUpload);
+
+                return Ok(new { FileUrl = downloadUrl, Message = "Image Upload Successfully." });
             }
             catch (FirebaseStorageException ex)
             {
@@ -116,8 +135,13 @@ namespace E_Mart.WebApi.Controllers
 
             try
             {
-                var storage = new FirebaseStorage(_firebaseStorageService.BucketName);
-                await storage.Child("uploads").Child(fileName).DeleteAsync();
+                var fileUploadFolder = "Uploads";
+                var firebaseGetImage = new FirebaseImageUploadModal
+                {
+                    fileUploadFolder = fileUploadFolder,
+                    fileName = fileName,
+                };
+                await _firebaseImageUploadService.FirebaseDeleteUploadImageAsync(firebaseGetImage);
 
                 return Ok(new { Message = "File deleted successfully." });
             }
@@ -131,19 +155,24 @@ namespace E_Mart.WebApi.Controllers
             }
         }
 
-        // Example of a method to serve a file
-        [HttpGet("download/{fileName}")]
-        public IActionResult DownloadFile(string fileName)
+        private string GetContentType(string fileName)
         {
-            var filePath = Path.Combine(Path.GetTempPath(), fileName);
-
-            if (!System.IO.File.Exists(filePath))
+            var contentType = "application/octet-stream"; // Default content type
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            switch (extension)
             {
-                return NotFound("File not found.");
+                case ".jpg":
+                case ".jpeg":
+                    contentType = "image/jpeg";
+                    break;
+                case ".png":
+                    contentType = "image/png";
+                    break;
+                case ".pdf":
+                    contentType = "application/pdf";
+                    break;
             }
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            return File(fileBytes, "application/octet-stream", fileName);
+            return contentType;
         }
     }
 }

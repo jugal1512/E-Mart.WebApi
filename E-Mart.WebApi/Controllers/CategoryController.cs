@@ -2,6 +2,7 @@
 using E_Mart.Domain.Categories;
 using E_Mart.WebApi.Models.Category;
 using E_Mart.WebApi.Models.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
@@ -11,16 +12,18 @@ namespace E_Mart.WebApi.Controllers;
 public class CategoryController : ControllerBase
 {
     private readonly CategoryService _categoryService;
+    private readonly SubCategoriesService _subCategoryService;
     private readonly IMapper _mapper;
-    public CategoryController(CategoryService categoryService,IMapper mapper)
+    public CategoryController(CategoryService categoryService, SubCategoriesService subCategoryService, IMapper mapper)
     {
         _categoryService = categoryService;
+        _subCategoryService = subCategoryService;
         _mapper = mapper;
     }
 
     [HttpGet]
-    [Route("GetAllCategory")]
-    public async Task<IActionResult> GetAllCategory()
+    [Route("getAllCategory")]
+    public async Task<IActionResult> GetAllCategoryAsync()
     {
         try
         {
@@ -30,7 +33,7 @@ public class CategoryController : ControllerBase
                 return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category not Found!" });
             }
             var categoryList = _mapper.Map<List<CategoryViewModal>>(categories);
-            return Ok(categoryList);
+            return Ok(new DataResponseList<CategoryViewModal> { Data = categoryList, Status = "Success", Message = "Categories Get Successfully." });
         }
         catch (Exception ex)
         {
@@ -38,9 +41,10 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles ="Admin")]
     [HttpPost]
-    [Route("AddCategory")]
-    public async Task<IActionResult> AddCategory([FromForm] CategoryDto categoryDto)
+    [Route("addCategory")]
+    public async Task<IActionResult> AddCategoryAsync([FromForm] CategoryDto categoryDto)
     {
         try
         {
@@ -48,9 +52,7 @@ public class CategoryController : ControllerBase
             if (categoryExists != null) {
                 return StatusCode(StatusCodes.Status409Conflict, new Response { Status = "Error", Message = "Category Already Have Exist!" });
             }
-            var categoryImageName = await SaveCategoryImage(categoryDto.CategoryImage);
             var category = _mapper.Map<Category>(categoryDto);
-            category.CategoryImage = categoryImageName;
             var addCategory = await _categoryService.AddAsync(category);
             return Ok( new Response{Status = "Success",Message = "Category Added Successfully." });
         }
@@ -59,24 +61,18 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles ="Admin")]
     [HttpPut]
-    [Route("UpdateCategory")]
-    public async Task<IActionResult> UpdateCategory([FromForm] CategoryDto categoryDto)
+    [Route("updateCategory")]
+    public async Task<IActionResult> UpdateCategoryAsync([FromForm] CategoryDto categoryDto)
     {
         try
         {
             var categoryExists = await _categoryService.GetByIdAsync(categoryDto.Id);
-            var categoryImageName = categoryExists.CategoryImage;
-            if (categoryDto.CategoryImage != null)
-            {
-                DeleteOldCategoryImage(categoryExists.CategoryImage);
-                categoryImageName = await SaveCategoryImage(categoryDto.CategoryImage);
-            }
             var category = _mapper.Map<Category>(categoryDto);
-            category.CategoryImage = categoryImageName;
             category.UpdatedAt = DateTime.Now;
             var updateCategory = await _categoryService.UpdateAsync(category);
-            return Ok(new Response { Status = "Success", Message = "Category Updated Succesfully." });
+            return Ok(new DataResponse<Category> { Data = updateCategory,Status = "Success", Message = "Category Updated Succesfully." });
         }
         catch (Exception ex)
         {
@@ -84,15 +80,15 @@ public class CategoryController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete]
-    [Route("DeleteCategory/{id}")]
-    public async Task<IActionResult> DeleteCategory(int id)
+    [Route("deleteCategory/{id}")]
+    public async Task<IActionResult> DeleteCategoryAsync(int id)
     {
         try
         {
             var category = await _categoryService.GetByIdAsync(id);
-            DeleteOldCategoryImage(category.CategoryImage);
-            await _categoryService.DeleteAsync(category.Id);
+            await _categoryService.SoftDeleteAsync(category.Id);
             return Ok(new Response {Status = "Success",Message = "Category Deleted Successfully." });
         }
         catch (Exception ex)
@@ -102,8 +98,8 @@ public class CategoryController : ControllerBase
     }
 
     [HttpGet]
-    [Route("SearchCategory")]
-    public async Task<IActionResult> SearchCategory(string categoryName)
+    [Route("searchCategoryByName")]
+    public async Task<IActionResult> SearchCategoryAsync(string categoryName)
     {
         try
         {
@@ -120,28 +116,36 @@ public class CategoryController : ControllerBase
         }
     }
 
-    private async Task<string> SaveCategoryImage(IFormFile categoryImage)
+    [HttpPost]
+    [Route("createSubCategoryAsync")]
+    public async Task<IActionResult> CreateSubCategoryAsync(SubCategoryDto subCategoryDto)
     {
-        var categoryImageName = Guid.NewGuid() + "_" + categoryImage.FileName;
-        var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Images/CategoryImages");
-        if (!Directory.Exists(directoryPath))
+        try
         {
-            Directory.CreateDirectory(directoryPath);
+            var categoryExist = await _categoryService.GetCategoryByName(subCategoryDto.CategoryName);
+            if (categoryExist == null) {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error",Message = "Category is Not Available!" });
+            }
+            if (subCategoryDto.CategoryName == null || subCategoryDto.CategoryName.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            var categoryImageName = await saveCategoryImageAsync(subCategoryDto.CategoryImage);
+            var subCategory = _mapper.Map<SubCategories>(subCategoryDto);
+            subCategory.ParentCategoryId = categoryExist.Id;
+            subCategory.CategoryImage = categoryImageName;
+            var addSubCategory = await _subCategoryService.AddAsync(subCategory);
+            return Ok(new DataResponse<SubCategories> { Data = addSubCategory,Status = "Success",Message = "SubCategory Added Successfully."});
         }
-        var categoryImagePath = Path.Combine(directoryPath, categoryImageName);
-        using (var stream = new FileStream(categoryImagePath, FileMode.Create))
-        {
-            await categoryImage.CopyToAsync(stream);
+        catch (Exception ex) {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
-        return categoryImageName;
     }
 
-    private void DeleteOldCategoryImage(string categoryImage)
+    private async Task<string> saveCategoryImageAsync(IFormFile categoryImage)
     {
-        var oldImage = Path.Combine(Directory.GetCurrentDirectory(), "Images/CategoryImages", categoryImage);
-        if (System.IO.File.Exists(oldImage))
-        {
-            System.IO.File.Delete(oldImage);
-        }
+        var categoryImageName = Guid.NewGuid().ToString() + "_" + categoryImage.FileName;
+
+        return categoryImageName;
     }
 }
