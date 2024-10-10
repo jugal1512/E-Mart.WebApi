@@ -21,11 +21,24 @@ public class GenericRepository<T,TDbContext> : IGenericRepository<T> where T : B
         return entity;
     }
 
+    public async Task SoftDeleteAsync(int id)
+    {
+        var entity = await _dbSet.FindAsync(id);
+        if (entity != null)
+        {
+            entity.IsDeleted = true;
+            entity.UpdatedAt = DateTime.UtcNow;
+            _eMartDbContext.Entry(entity).Property(e => e.IsDeleted).IsModified = true;
+            _eMartDbContext.Entry(entity).Property(e => e.UpdatedAt).IsModified = true;
+            await _eMartDbContext.SaveChangesAsync();
+        }
+    }
+
     public async Task DeleteAsync(int id)
     {
         var entity = await _dbSet.FindAsync(id);
         if (entity != null)
-        { 
+        {
             _dbSet.Remove(entity);
             await _eMartDbContext.SaveChangesAsync();
         }

@@ -1,4 +1,4 @@
-﻿namespace E_Mart.WebApi;
+﻿namespace E_Mart.WebApi.Utilities.FirebaseImageUpload;
 
 public class FirebaseStorageService
 {
