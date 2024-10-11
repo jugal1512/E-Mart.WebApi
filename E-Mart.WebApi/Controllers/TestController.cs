@@ -15,10 +15,12 @@ namespace E_Mart.WebApi.Controllers
 
         private readonly FirebaseStorageService _firebaseStorageService;
         private readonly IFirebaseImageUploadService _firebaseImageUploadService;
-        public TestController(FirebaseStorageService firebaseStorageService,IFirebaseImageUploadService firebaseImageUploadService)
+        private readonly string _fileUploadFolder;
+        public TestController(FirebaseStorageService firebaseStorageService,IFirebaseImageUploadService firebaseImageUploadService,IConfiguration configuration)
         {
             _firebaseStorageService = firebaseStorageService;
             _firebaseImageUploadService = firebaseImageUploadService;
+            _fileUploadFolder = configuration["FileUploadSettingds:TestPage"];
         }
 
         [HttpGet("downloadUploadImage/{fileName}")]
@@ -31,7 +33,7 @@ namespace E_Mart.WebApi.Controllers
 
             try
             {
-                var fileUploadFolder = "Uploads";
+                var fileUploadFolder = _fileUploadFolder;
                 var firebaseGetImage = new FirebaseImageUploadModal
                 {
                     fileUploadFolder = fileUploadFolder,
@@ -66,7 +68,7 @@ namespace E_Mart.WebApi.Controllers
 
             try
             {
-                var fileUploadFolder = "Uploads";
+                var fileUploadFolder = _fileUploadFolder;
                 var firebaseGetImage = new FirebaseImageUploadModal
                 {
                     fileUploadFolder = fileUploadFolder,
@@ -95,7 +97,7 @@ namespace E_Mart.WebApi.Controllers
 
             var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(Path.GetTempPath(), fileName);
-            var fileUploadFolder = "Uploads";
+            var fileUploadFolder = _fileUploadFolder;
 
             try
             {
@@ -112,7 +114,6 @@ namespace E_Mart.WebApi.Controllers
                 };
 
                 var downloadUrl = await _firebaseImageUploadService.FirebaseUploadImageAsync(firebaseImageUpload);
-
                 return Ok(new { FileUrl = downloadUrl, Message = "Image Upload Successfully." });
             }
             catch (FirebaseStorageException ex)
@@ -135,7 +136,7 @@ namespace E_Mart.WebApi.Controllers
 
             try
             {
-                var fileUploadFolder = "Uploads";
+                var fileUploadFolder = _fileUploadFolder;
                 var firebaseGetImage = new FirebaseImageUploadModal
                 {
                     fileUploadFolder = fileUploadFolder,

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System.Text;
 
 namespace E_Mart.WebApi;
@@ -61,14 +62,14 @@ public class Startup
         services.AddTransient<IProductService, ProductService>();
         services.AddTransient<IProductRepository, ProductRepository>();
 
-        services.AddControllers();
-        //services.AddControllers().AddNewtonsoftJson(options =>
-        //    {
-        //        options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
-        //        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-        //        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-        //    }
-        //);
+        //services.AddControllers();
+        services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.None;
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            }
+        );
 
         // Adding Authentication
         services.AddAuthentication(options =>

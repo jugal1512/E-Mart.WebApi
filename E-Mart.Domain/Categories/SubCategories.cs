@@ -8,6 +8,6 @@ public class SubCategories : BaseEntity
     public string Name { get; set; }
     public string CategoryImage { get; set; }
     public string Description { get; set; }
-    public virtual Category Category { get; set; }
-    public virtual ICollection<Product> Products { get; set; }
+    public virtual Category? Category { get; set; }
+    public virtual ICollection<Product>? Products { get; set; }
 }
