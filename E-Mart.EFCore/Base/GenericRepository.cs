@@ -28,6 +28,7 @@ public class GenericRepository<T,TDbContext> : IGenericRepository<T> where T : B
         {
             entity.IsDeleted = true;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.IsActive = false;
             _eMartDbContext.Entry(entity).Property(e => e.IsDeleted).IsModified = true;
             _eMartDbContext.Entry(entity).Property(e => e.UpdatedAt).IsModified = true;
             await _eMartDbContext.SaveChangesAsync();
@@ -44,7 +45,7 @@ public class GenericRepository<T,TDbContext> : IGenericRepository<T> where T : B
         }
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _dbSet.AsNoTracking().Where(x => x.IsActive).ToListAsync();
     }

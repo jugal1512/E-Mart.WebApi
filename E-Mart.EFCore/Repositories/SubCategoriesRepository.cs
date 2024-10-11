@@ -1,11 +1,7 @@
 ﻿using E_Mart.Domain.Categories;
 using E_Mart.EFCore.Base;
 using E_Mart.EFCore.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Mart.EFCore.Repositories;
 public class SubCategoriesRepository : GenericRepository<SubCategories, EMartDbContext>, ISubCategoriesRepository
@@ -14,5 +10,10 @@ public class SubCategoriesRepository : GenericRepository<SubCategories, EMartDbC
     public SubCategoriesRepository(EMartDbContext eMartDbContext) : base(eMartDbContext)
     {
         _eMartDbContext = eMartDbContext;
+    }
+
+    public override async Task<IEnumerable<SubCategories>> GetAllAsync()
+    { 
+        return await _eMartDbContext.SubCategories.AsNoTracking().Include(c =>c.Category).Where(x => x.IsActive).ToListAsync();
     }
 }
