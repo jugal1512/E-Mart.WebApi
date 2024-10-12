@@ -53,7 +53,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            var categoryExists = await _categoryService.GetCategoryByName(categoryDto.CategoryName);
+            var categoryExists = await _categoryService.GetCategoryByNameAsync(categoryDto.CategoryName);
             if (categoryExists != null) {
                 return StatusCode(StatusCodes.Status409Conflict, new Response { Status = "Error", Message = "Category Already Have Exist!" });
             }
@@ -109,7 +109,7 @@ public class CategoryController : ControllerBase
         try
         {
             Expression<Func<Category, bool>> predicate = c => c.CategoryName.ToLower().Contains(categoryName.ToLower());
-            var category = await _categoryService.SearchCategory(predicate);
+            var category = await _categoryService.SearchCategoryAsync(predicate);
             if (category == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category Not Found!" });
@@ -128,7 +128,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            var categoryExist = await _categoryService.GetCategoryByName(subCategoryDto.CategoryName);
+            var categoryExist = await _categoryService.GetCategoryByNameAsync(subCategoryDto.CategoryName);
             if (categoryExist == null) {
                 return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error",Message = "Category is Not Available!" });
             }
@@ -163,7 +163,7 @@ public class CategoryController : ControllerBase
             var newSubCategoryId = subCategoryExist.ParentCategoryId;
             if (subCategoryDto.CategoryName != null)
             {
-                var categoryExists = await _categoryService.GetCategoryByName(subCategoryDto.CategoryName);
+                var categoryExists = await _categoryService.GetCategoryByNameAsync(subCategoryDto.CategoryName);
                 if (categoryExists != null)
                 {
                     newSubCategoryId = categoryExists.Id;
@@ -218,6 +218,26 @@ public class CategoryController : ControllerBase
             DeleteCategoryImage(subCategory.CategoryImage);
             await _subCategoryService.SoftDeleteAsync(subCategory.Id);
             return Ok(new Response { Status = "Success", Message = "Sub Category Deleted Successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    [Route("searchSubCategoryAsync")]
+    public async Task<IActionResult> SearchSubCategoryAsync(string subCategoryName)
+    {
+        try
+        {
+            Expression<Func<SubCategories, bool>> predicate = c => c.Name.ToLower().Contains(subCategoryName.ToLower());
+            var subCategory = await _subCategoryService.SearchSubCategoryAsync(predicate);
+            if (subCategory == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category Not Found!" });
+            }
+            return Ok(subCategory);
         }
         catch (Exception ex)
         {

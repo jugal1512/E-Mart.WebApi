@@ -16,13 +16,13 @@ public class CategoryService : GenericService<Category> , ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<Category> GetCategoryByName(string categoryName)
+    public async Task<Category> GetCategoryByNameAsync(string categoryName)
     {
-        return await _categoryRepository.GetCategoryByName(categoryName);
+        return await _categoryRepository.GetCategoryByNameAsync(categoryName);
     }
 
-    public async Task<List<Category>> SearchCategory(Expression<Func<Category, bool>> predicate)
+    public async Task<List<Category>> SearchCategoryAsync(Expression<Func<Category, bool>> predicate)
     {
-        return await _categoryRepository.SearchCategory(predicate);
+        return await _categoryRepository.SearchCategoryAsync(predicate);
     }
 }
