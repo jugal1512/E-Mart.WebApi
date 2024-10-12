@@ -15,12 +15,12 @@ public class CategoryRepository : GenericRepository<Category,EMartDbContext> , I
         _eMartDbContext = eMartDbContext;
     }
 
-    public async Task<Category> GetCategoryByName(string categoryName)
+    public async Task<Category> GetCategoryByNameAsync(string categoryName)
     {
         return await _eMartDbContext.Categories.Where(x => x.CategoryName == categoryName).FirstOrDefaultAsync();
     }
 
-    public async Task<List<Category>> SearchCategory(Expression<Func<Category, bool>> predicate)
+    public async Task<List<Category>> SearchCategoryAsync(Expression<Func<Category, bool>> predicate)
     {
         return await _eMartDbContext.Categories.AsQueryable().Where(predicate).ToListAsync();
     }

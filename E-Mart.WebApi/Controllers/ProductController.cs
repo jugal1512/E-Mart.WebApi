@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Categories;
 using E_Mart.Domain.Products;
-using E_Mart.WebApi.Models;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
@@ -16,11 +15,13 @@ public class ProductController : ControllerBase
 {
     private readonly ProductService _productService;
     private readonly CategoryService _categoryService;
+    private readonly SubCategoriesService _subCategoriesService;
     private readonly IMapper _mapper;
-    public ProductController(ProductService productService, CategoryService categoryService, IMapper mapper)
+    public ProductController(ProductService productService, CategoryService categoryService, SubCategoriesService subCategoriesService, IMapper mapper)
     {
         _productService = productService;
         _categoryService = categoryService;
+        _subCategoriesService = subCategoriesService;
         _mapper = mapper;
     }
 
@@ -41,21 +42,21 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin,Seller")]
     [HttpPost]
-    [Route("AddProduct")]
-    public async Task<IActionResult> AddProduct([FromForm] ProductDto productDto)
+    [Route("addProductAsync")]
+    public async Task<IActionResult> AddProductAsync([FromForm] ProductDto productDto)
     {
         try
         {
             string userName = User.FindFirst(ClaimTypes.Name)?.Value;
-            var productImageNameList = await SaveProductImages(productDto.ProductImage);
-            var categoryExist = await _categoryService.GetCategoryByName(productDto.CategoryName);
-            if (categoryExist == null)
+            var productImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
+            var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
+            if (subCategoryExist == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category is Not Exists!" });
             }
             else
             {
-                productDto.CategoryId = categoryExist.Id;
+                productDto.CategoryId = subCategoryExist.Id;
             }
             var product = _mapper.Map<Product>(productDto);
             product.ProductImage = productImageNameList;
@@ -70,17 +71,17 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin,Seller")]
     [HttpPut]
-    [Route("UpdateProduct")]
-    public async Task<IActionResult> UpdateProduct([FromForm]ProductDto productDto)
+    [Route("updateProductAsync")]
+    public async Task<IActionResult> UpdateProductAsync([FromForm]ProductDto productDto)
     {
         try
         {
             string userName = User.FindFirst(ClaimTypes.Name)?.Value;
             var productExist = await _productService.GetByIdAsync(productDto.Id);
-            if (!string.IsNullOrEmpty(productDto.CategoryName))
+            if (!string.IsNullOrEmpty(productDto.SubCategoryName))
             {
-                var categoryExist = await _categoryService.GetCategoryByName(productDto.CategoryName);
-                if (categoryExist == null) {
+                var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
+                if (subCategoryExist == null) {
                     return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category is Not Exists!" });
                 }
                 productDto.CategoryId = productExist.CategoryId;
@@ -91,7 +92,7 @@ public class ProductController : ControllerBase
                 List<string> oldProductImageNames = productExist.ProductImage.Split(",").ToList();
                 DeleteProductImage(oldProductImageNames);
 
-                newProductImageNameList = await SaveProductImages(productDto.ProductImage);
+                newProductImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
             }
             var product = _mapper.Map<Product>(productDto);
             product.IsActive = true;
@@ -108,15 +109,15 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Roles = "Admin,Seller")]
-    [HttpDelete]
-    [Route("DeleteProduct/{id}")]
-    public async Task<IActionResult> DeleteProduct(int id)
+    [HttpDelete]    
+    [Route("deleteProductAsync/{id}")]
+    public async Task<IActionResult> DeleteProductAsync(int id)
     {
         try {
             var productExist = await _productService.GetByIdAsync(id);
             List<string> productImageNameList = productExist.ProductImage.Split(',').ToList();
             DeleteProductImage(productImageNameList);
-            await _productService.DeleteAsync(id);
+            await _productService.SoftDeleteAsync(id);
             return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
         }
         catch (Exception ex) {
@@ -125,8 +126,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    [Route("SearchProduct")]
-    public async Task<IActionResult> SearchProduct(string productName)
+    [Route("searchProductAsync/{productName}")]
+    public async Task<IActionResult> SearchProductAsync(string productName)
     {
         try {
             Expression<Func<Product, bool>> predicate = p => p.ProductName.ToLower().Contains(productName.ToLower());
@@ -137,7 +138,7 @@ public class ProductController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
     }
-    private async Task<string> SaveProductImages(List<IFormFile> productImages)
+    private async Task<string> SaveProductImagesAsync(List<IFormFile> productImages)
     {
         List<string> productImageList = new List<string>();
         foreach (var item in productImages)
