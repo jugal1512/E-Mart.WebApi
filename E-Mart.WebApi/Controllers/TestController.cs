@@ -20,7 +20,7 @@ namespace E_Mart.WebApi.Controllers
         {
             _firebaseStorageService = firebaseStorageService;
             _firebaseImageUploadService = firebaseImageUploadService;
-            _fileUploadFolder = configuration["FileUploadSettingds:TestPage"];
+            _fileUploadFolder = configuration["FileUploadSettings:TestPage"];
         }
 
         [HttpGet("downloadUploadImage/{fileName}")]

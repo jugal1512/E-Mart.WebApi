@@ -47,5 +47,6 @@ public class AutoMapperProfile:Profile
     {
         CreateMap<Product, ProductDto>().ReverseMap();
         CreateMap<Product, ProductViewModal>().ReverseMap();
+        CreateMap<Product, ProductUpdateViewModal>().ReverseMap();
     }
 }

@@ -3,6 +3,7 @@ using E_Mart.Domain.Categories;
 using E_Mart.Domain.Products;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.Response;
+using E_Mart.WebApi.Utilities.FirebaseImageUpload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -14,16 +15,18 @@ namespace E_Mart.WebApi.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly ProductService _productService;
-    private readonly CategoryService _categoryService;
     private readonly SubCategoriesService _subCategoriesService;
+    private readonly string _fileUploadFolder;
+    private readonly IFirebaseImageUploadService _firebaseImageUploadService;
     private readonly IMapper _mapper;
-    public ProductController(ProductService productService, CategoryService categoryService, SubCategoriesService subCategoriesService, IMapper mapper)
+    public ProductController(ProductService productService, SubCategoriesService subCategoriesService, IMapper mapper,IConfiguration configuration, IFirebaseImageUploadService firebaseImageUploadService)
     {
         _productService = productService;
-        _categoryService = categoryService;
         _subCategoriesService = subCategoriesService;
+        _fileUploadFolder = configuration["FileUploadSettings:ProductPage"];
+        _firebaseImageUploadService = firebaseImageUploadService;
         _mapper = mapper;
-    }
+    } 
 
     [HttpGet]
     [Route("GetAllProducts")]
@@ -42,25 +45,22 @@ public class ProductController : ControllerBase
 
     [Authorize(Roles = "Admin,Seller")]
     [HttpPost]
-    [Route("addProductAsync")]
-    public async Task<IActionResult> AddProductAsync([FromForm] ProductDto productDto)
+    [Route("createProductAsync")]
+    public async Task<IActionResult> CreateProductAsync([FromForm] ProductDto productDto)
     {
         try
         {
             string userName = User.FindFirst(ClaimTypes.Name)?.Value;
-            var productImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
             var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
             if (subCategoryExist == null)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category is Not Exists!" });
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Sub Category is Not Exists!" });
             }
-            else
-            {
-                productDto.CategoryId = subCategoryExist.Id;
-            }
+            var productImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
             var product = _mapper.Map<Product>(productDto);
             product.ProductImage = productImageNameList;
             product.CreatedBy = userName;
+            product.CategoryId = subCategoryExist.Id;
             await _productService.AddAsync(product);
             return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
         }
@@ -72,36 +72,51 @@ public class ProductController : ControllerBase
     [Authorize(Roles = "Admin,Seller")]
     [HttpPut]
     [Route("updateProductAsync")]
-    public async Task<IActionResult> UpdateProductAsync([FromForm]ProductDto productDto)
+    public async Task<IActionResult> UpdateProductAsync([FromForm] ProductUpdateViewModal productDto)
     {
         try
         {
             string userName = User.FindFirst(ClaimTypes.Name)?.Value;
             var productExist = await _productService.GetByIdAsync(productDto.Id);
+            var subCategoriesId = productExist.CategoryId;
             if (!string.IsNullOrEmpty(productDto.SubCategoryName))
             {
                 var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
-                if (subCategoryExist == null) {
+                if (subCategoryExist == null)
+                {
                     return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Category is Not Exists!" });
                 }
-                productDto.CategoryId = productExist.CategoryId;
+                else { 
+                    subCategoriesId = subCategoryExist.Id;
+                }
             }
-            var newProductImageNameList = productExist.ProductImage;
-            if (productDto.ProductImage != null && productDto.ProductImage.Count > 0)
-            { 
-                List<string> oldProductImageNames = productExist.ProductImage.Split(",").ToList();
-                DeleteProductImage(oldProductImageNames);
-
-                newProductImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
+            List<string> existingImages = productExist.ProductImage.Split(",").ToList();
+            if (!string.IsNullOrEmpty(productDto.deletedImageNames))
+            {
+                List<string> oldDeleteProductImageNames = productDto.deletedImageNames.Split(",").ToList();
+                await DeleteProductImageAsync(oldDeleteProductImageNames);
+                foreach (var img in oldDeleteProductImageNames)
+                {
+                    existingImages.Remove(img);
+                }
+            }
+            if (productDto.ProductImage != null)
+            {
+                List<string> newProductImages = (await SaveProductImagesAsync(productDto.ProductImage)).Split(",").ToList();
+                foreach (var img in newProductImages)
+                {
+                    existingImages.Add(img);
+                }
             }
             var product = _mapper.Map<Product>(productDto);
             product.IsActive = true;
-            product.ProductImage = newProductImageNameList;
+            product.CategoryId = subCategoriesId;
             product.CreatedAt = productExist.CreatedAt;
             product.CreatedBy = productExist.CreatedBy;
             product.UpdatedBy = userName;
+            product.ProductImage = string.Join(",", existingImages);
             await _productService.UpdateAsync(product);
-            return Ok(new Response { Status = "Success", Message = "Product Update Successfully." });
+            return Ok(new Response { Status = "Success", Message = "Product Updated Successfully." });
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
@@ -116,9 +131,9 @@ public class ProductController : ControllerBase
         try {
             var productExist = await _productService.GetByIdAsync(id);
             List<string> productImageNameList = productExist.ProductImage.Split(',').ToList();
-            DeleteProductImage(productImageNameList);
+            await DeleteProductImageAsync(productImageNameList);
             await _productService.SoftDeleteAsync(id);
-            return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
+            return Ok(new Response { Status = "Success", Message = "Product Deleted Successfully." });
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
@@ -138,36 +153,42 @@ public class ProductController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
     }
+
     private async Task<string> SaveProductImagesAsync(List<IFormFile> productImages)
     {
         List<string> productImageList = new List<string>();
         foreach (var item in productImages)
         {
             var ProductImageName = Guid.NewGuid() + "_" + item.FileName;
-            var directorypath = Path.Combine(Directory.GetCurrentDirectory(), "Images/ProductImages");
-            if (!Directory.Exists(directorypath))
-            {
-                Directory.CreateDirectory(directorypath);
-            }
-            var productImagePath = Path.Combine(directorypath, ProductImageName);
-            using (var stream = new FileStream(productImagePath, FileMode.Create))
+            var filePath = Path.Combine(Path.GetTempPath(), ProductImageName);
+            var fileUploadFolder = _fileUploadFolder;
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await item.CopyToAsync(stream);
             }
             productImageList.Add(ProductImageName);
+            var firebaseImageUpload = new FirebaseImageUploadModal
+            {
+                fileUploadFolder = fileUploadFolder,
+                fileName = ProductImageName,
+                filePath = filePath,
+            };
+            var downloadUrl = await _firebaseImageUploadService.FirebaseUploadImageAsync(firebaseImageUpload);
         }
         return string.Join(",", productImageList);
     }
 
-    private void DeleteProductImage(List<string> productImageNameList)
+    private async Task DeleteProductImageAsync(List<string> productImageNameList)
     {
         foreach (var item in productImageNameList)
         {
-            var oldProductImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images/ProductImages", item);
-            if (System.IO.File.Exists(oldProductImagePath))
+            var fileUploadFolder = _fileUploadFolder;
+            var firebaseGetImage = new FirebaseImageUploadModal
             {
-                System.IO.File.Delete(oldProductImagePath);
-            }
+                fileUploadFolder = fileUploadFolder,
+                fileName = item,
+            };
+            await _firebaseImageUploadService.FirebaseDeleteUploadImageAsync(firebaseGetImage);
         }
     }
 }
