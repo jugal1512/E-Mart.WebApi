@@ -58,6 +58,7 @@ public class GenericRepository<T,TDbContext> : IGenericRepository<T> where T : B
     public async Task<T> UpdateAsync(T entity)
     {
         entity.UpdatedAt = DateTime.UtcNow;
+        entity.IsDeleted = false;
         _dbSet.Update(entity);
         await _eMartDbContext.SaveChangesAsync();
         return entity;
