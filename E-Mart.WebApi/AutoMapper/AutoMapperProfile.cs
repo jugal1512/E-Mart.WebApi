@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Authentication;
+using E_Mart.Domain.Carts;
 using E_Mart.Domain.Categories;
 using E_Mart.Domain.Customer;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models.Authentication;
+using E_Mart.WebApi.Models.Cart;
 using E_Mart.WebApi.Models.Category;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.User;
@@ -19,6 +21,7 @@ public class AutoMapperProfile:Profile
         CreateUserMaps();
         CreateCategoryMaps();
         CreateProductMaps();
+        CreateCartMaps();
     }
 
     private void CreateRoleMaps()
@@ -48,5 +51,11 @@ public class AutoMapperProfile:Profile
         CreateMap<Product, ProductDto>().ReverseMap();
         CreateMap<Product, ProductViewModal>().ReverseMap();
         CreateMap<Product, ProductUpdateViewModal>().ReverseMap();
+    }
+
+    private void CreateCartMaps()
+    {
+        CreateMap<Cart, CartAddViewModal>().ReverseMap();
+        CreateMap<CartItem, CartAddViewModal>().ReverseMap();
     }
 }

@@ -14,18 +14,18 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public async Task<User> UserExists(string userName)
+    public async Task<User> UserExistsAsync(string userName)
     {
-        return await _userRepository.UserExists(userName);
+        return await _userRepository.UserExistsAsync(userName);
     }
 
-    public async Task<User> RegisterUser(User user)
+    public async Task<User> RegisterUserAsync(User user)
     {
-        return await _userRepository.RegisterUser(user);
+        return await _userRepository.RegisterUserAsync(user);
     }
 
-    public async Task<UserDetails> AddUserAddress(UserDetails userAddress)
+    public async Task<UserDetails> AddUserAddressAsync(UserDetails userAddress)
     {
-        return await _userRepository.AddUserAddress(userAddress);
+        return await _userRepository.AddUserAddressAsync(userAddress);
     }
 }

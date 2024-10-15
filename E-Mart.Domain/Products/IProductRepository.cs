@@ -9,5 +9,6 @@ using System.Threading.Tasks;
 namespace E_Mart.Domain.Products;
 public interface IProductRepository : IGenericRepository<Product>
 {
-    Task<List<Product>> SearchProduct(Expression<Func<Product, bool>> predicate);
+    Task<List<Product>> SearchProductAsync(Expression<Func<Product, bool>> predicate);
+    Task<int> GetProductPriceAsync(int id);
 }

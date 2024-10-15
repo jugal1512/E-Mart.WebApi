@@ -17,20 +17,20 @@ public class UserRepository : IUserRepository
         _eMartDbContext = eMartDbContext;
     }
 
-    public async Task<User> UserExists(string userName)
+    public async Task<User> UserExistsAsync(string userName)
     {
         var user = await _eMartDbContext.Users.Where(u => u.UserName.ToLower() == userName.ToLower()).FirstOrDefaultAsync();
         return user;
     }
 
-    public async Task<User> RegisterUser(User user)
+    public async Task<User> RegisterUserAsync(User user)
     {
         await _eMartDbContext.AddAsync(user);
         await _eMartDbContext.SaveChangesAsync();
         return user;
     }
 
-    public async Task<UserDetails> AddUserAddress(UserDetails userAddress)
+    public async Task<UserDetails> AddUserAddressAsync(UserDetails userAddress)
     {
         await _eMartDbContext.UserDetails.AddAsync(userAddress);
         await _eMartDbContext.SaveChangesAsync();

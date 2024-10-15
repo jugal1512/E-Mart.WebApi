@@ -13,6 +13,8 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.Property(c => c.Total).IsRequired();
         builder.Property(c => c.CreatedAt).IsRequired();
         builder.Property(c => c.UpdatedAt);
+        builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false);
+        builder.Property(p => p.IsActive).IsRequired().HasColumnType("bit").HasDefaultValue(true);
 
         builder
             .HasMany(c => c.CartItems)
