@@ -18,7 +18,12 @@ public class ProductRepository : GenericRepository<Product, EMartDbContext>, IPr
         _eMartDbContext = eMartDbContext;
     }
 
-    public async Task<List<Product>> SearchProduct(Expression<Func<Product, bool>> predicate)
+    public async Task<int> GetProductPriceAsync(int id)
+    {
+        return await _eMartDbContext.Products.AsNoTracking().Where(p => p.Id == id ).Select(p => p.OriginalPrice).FirstOrDefaultAsync();
+    }
+
+    public async Task<List<Product>> SearchProductAsync(Expression<Func<Product, bool>> predicate)
     {
         return await _eMartDbContext.Products.Where(predicate).ToListAsync();
     }

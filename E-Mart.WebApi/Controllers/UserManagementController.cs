@@ -33,7 +33,7 @@ public class UserManagementController : ControllerBase
     {
         try
         {
-            var userExists = await _userService.UserExists(userDto.UserName);
+            var userExists = await _userService.UserExistsAsync(userDto.UserName);
             if (userExists != null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User Already Exists!" });
@@ -51,7 +51,7 @@ public class UserManagementController : ControllerBase
                 var user = _mapper.Map<User>(userDto);
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = null;
-                var addUser = await _userService.RegisterUser(user);
+                var addUser = await _userService.RegisterUserAsync(user);
                 if (addUser != null)
                 {
                     return Ok(new Response { Status = "Success", Message = "User Created Is Successfully." });
@@ -75,7 +75,7 @@ public class UserManagementController : ControllerBase
         try
         {
             var userDetails = _mapper.Map<UserDetails>(userDetailsDto);
-            await _userService.AddUserAddress(userDetails);
+            await _userService.AddUserAddressAsync(userDetails);
             return Ok(new Response { Status = "Success",Message = "User Details Added Successfully."});
         }
         catch (Exception ex)

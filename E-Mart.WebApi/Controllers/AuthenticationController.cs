@@ -32,7 +32,7 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> Login(LoginDto userDto)
     {
         try {
-            var userExists = await _userService.UserExists(userDto.UserName);
+            var userExists = await _userService.UserExistsAsync(userDto.UserName);
             if (userExists != null && await VerifyPassword(userExists.PasswordHash, userDto.Password))
             {
                 var authClaims = new List<Claim>

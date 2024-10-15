@@ -13,12 +13,10 @@ namespace E_Mart.WebApi.Controllers
         //private static string authEmail = "jugallotwala@gmail.com";
         //private static string authPassword = "Jugal15012002";
 
-        private readonly FirebaseStorageService _firebaseStorageService;
         private readonly IFirebaseImageUploadService _firebaseImageUploadService;
         private readonly string _fileUploadFolder;
-        public TestController(FirebaseStorageService firebaseStorageService,IFirebaseImageUploadService firebaseImageUploadService,IConfiguration configuration)
+        public TestController(IFirebaseImageUploadService firebaseImageUploadService,IConfiguration configuration)
         {
-            _firebaseStorageService = firebaseStorageService;
             _firebaseImageUploadService = firebaseImageUploadService;
             _fileUploadFolder = configuration["FileUploadSettings:TestPage"];
         }

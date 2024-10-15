@@ -15,8 +15,13 @@ public class ProductService : GenericService<Product>, IProductService
         _productRepository = productRepository;
     }
 
-    public async Task<List<Product>> SearchProduct(Expression<Func<Product, bool>> predicate)
+    public async Task<int> GetProductPriceAsync(int id)
     {
-        return await _productRepository.SearchProduct(predicate);
+        return await _productRepository.GetProductPriceAsync(id);
+    }
+
+    public async Task<List<Product>> SearchProductAsync(Expression<Func<Product, bool>> predicate)
+    {
+        return await _productRepository.SearchProductAsync(predicate);
     }
 }

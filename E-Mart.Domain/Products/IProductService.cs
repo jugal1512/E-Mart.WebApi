@@ -4,5 +4,6 @@ using System.Linq.Expressions;
 namespace E_Mart.Domain.Products;
 public interface IProductService : IGenericService<Product>
 {
-    Task<List<Product>> SearchProduct(Expression<Func<Product, bool>> predicate);
+    Task<List<Product>> SearchProductAsync(Expression<Func<Product, bool>> predicate);
+    Task<int> GetProductPriceAsync(int id);
 }

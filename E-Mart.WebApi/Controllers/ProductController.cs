@@ -146,7 +146,7 @@ public class ProductController : ControllerBase
     {
         try {
             Expression<Func<Product, bool>> predicate = p => p.ProductName.ToLower().Contains(productName.ToLower());
-            var productList = await _productService.SearchProduct(predicate);
+            var productList = await _productService.SearchProductAsync(predicate);
             return Ok(productList);
         }
         catch (Exception ex) {

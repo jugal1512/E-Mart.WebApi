@@ -1,4 +1,5 @@
-﻿using E_Mart.Domain.Categories;
+﻿using E_Mart.Domain.Carts;
+using E_Mart.Domain.Categories;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
 using E_Mart.EFCore.Data;
@@ -61,6 +62,12 @@ public class Startup
         services.AddScoped<ProductService>();
         services.AddTransient<IProductService, ProductService>();
         services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddScoped<CartService>();
+        services.AddTransient<ICartService, CartService>();
+        services.AddTransient<ICartRepository, CartRepository>();
+        services.AddScoped<CartItemService>();
+        services.AddTransient<ICartItemService, CartItemService>();
+        services.AddTransient<ICartItemRepository, CartItemRepository>();
 
         //services.AddControllers();
         services.AddControllers().AddNewtonsoftJson(options =>

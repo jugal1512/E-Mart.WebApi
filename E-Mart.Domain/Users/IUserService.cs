@@ -3,7 +3,7 @@
 namespace E_Mart.Domain.Users;
 public interface IUserService
 {
-    Task<User> UserExists(string userName);
-    Task<User> RegisterUser(User user);
-    Task<UserDetails> AddUserAddress(UserDetails userAddress);
+    Task<User> UserExistsAsync(string userName);
+    Task<User> RegisterUserAsync(User user);
+    Task<UserDetails> AddUserAddressAsync(UserDetails userAddress);
 }
