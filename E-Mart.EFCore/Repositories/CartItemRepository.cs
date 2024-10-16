@@ -1,5 +1,4 @@
 ﻿using E_Mart.Domain.Carts;
-using E_Mart.EFCore.Base;
 using E_Mart.EFCore.Data;
 using System;
 using System.Collections.Generic;
@@ -8,11 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Mart.EFCore.Repositories;
-public class CartItemRepository : GenericRepository<CartItem, EMartDbContext>, ICartItemRepository
+public class CartItemRepository : ICartItemRepository
 {
-    private readonly EMartDbContext _emartDbContext;
-    public CartItemRepository(EMartDbContext eMartDbContext) : base(eMartDbContext)
+    private readonly EMartDbContext _eMartDbContext;
+    public CartItemRepository(EMartDbContext eMartDbContext)
     {
-        _emartDbContext = eMartDbContext;
+        _eMartDbContext = eMartDbContext;
+    }
+    public async Task<CartItem> AddCartItemAsync(CartItem cartItem)
+    {
+        await _eMartDbContext.CartItems.AddAsync(cartItem);
+        await _eMartDbContext.SaveChangesAsync();
+        return cartItem;
     }
 }

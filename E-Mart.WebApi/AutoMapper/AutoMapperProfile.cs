@@ -55,7 +55,14 @@ public class AutoMapperProfile:Profile
 
     private void CreateCartMaps()
     {
-        CreateMap<Cart, CartAddViewModal>().ReverseMap();
-        CreateMap<CartItem, CartAddViewModal>().ReverseMap();
+        //CreateMap<CartAddViewModal, Cart>().ForMember(dest => dest.CartItems, opt => opt.MapFrom(src => new List<CartItem> { 
+        //    new CartItem{ 
+        //        ProductId = src.CartItem.ProductId,
+        //        Quantity = src.CartItem.Quantity,
+        //        }
+        //})).ReverseMap();
+        CreateMap<Cart, CartAddViewModal>().ForMember(dest => dest.CartItem,opt => opt.MapFrom(src => src.CartItems.FirstOrDefault())).ReverseMap();
+        CreateMap<CartItem, CartItemAddModal>().ReverseMap();
+        CreateMap<CartByUserIdViewModal, Cart>().ReverseMap();
     }
 }
