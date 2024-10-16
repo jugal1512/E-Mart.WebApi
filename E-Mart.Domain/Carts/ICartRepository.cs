@@ -8,4 +8,5 @@ using System.Threading.Tasks;
 namespace E_Mart.Domain.Carts;
 public interface ICartRepository :IGenericRepository<Cart>
 {
+    Task<Cart> getCartDetilsByUserIdAsync(int id);
 }

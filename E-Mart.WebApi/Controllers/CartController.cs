@@ -17,7 +17,7 @@ public class CartController : ControllerBase
     private readonly CartService _cartService;
     private readonly CartItemService _cartItemService;
     private readonly IMapper _mapper;
-    public CartController(UserService userService, ProductService productService, CartService cartService, CartItemService cartItemService, IMapper mapper)
+    public CartController(UserService userService, ProductService productService, CartService cartService,CartItemService cartItemService, IMapper mapper)
     {
         _userService = userService;
         _productService = productService;
@@ -30,29 +30,40 @@ public class CartController : ControllerBase
     [Route("addToCartAsync")]
     public async Task<IActionResult> AddToCartAsync([FromForm]CartAddViewModal cartAddViewModal)
     {
-        try
+        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var user = await _userService.UserExistsAsync(userName);
+        if (string.IsNullOrEmpty(userName))
         {
-            string userName = User.FindFirst(ClaimTypes.Name)?.Value;
-            var user = await _userService.UserExistsAsync(userName);
-            if (string.IsNullOrEmpty(userName))
+            return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+        }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
+        }
+        try {
+            var productPrice = await _productService.GetProductPriceAsync(cartAddViewModal.CartItem.ProductId);
+            var cartByUserId = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            if (cartByUserId != null)
             {
-                return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+                cartByUserId.Total = cartByUserId.Total + productPrice;
+                var cartData = _mapper.Map<Cart>(cartByUserId);
+                await _cartService.UpdateAsync(cartData);
+                cartData.CartItems = new List<CartItem>
+                {
+                    _mapper.Map<CartItem>(cartAddViewModal.CartItem)
+                };
+                await _cartItemService.AddCartItemAsync(cartData.CartItems.FirstOrDefault());
+                return Ok(new Response { Status = "Success", Message = "Cart Item Added Successfully." });
             }
-            if (user == null)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
-            }
-            var quantity = 1;
-            var productPrice = await _productService.GetProductPriceAsync(cartAddViewModal.productId);
             var total = productPrice;
             var cart = _mapper.Map<Cart>(cartAddViewModal);
             cart.UserId = user.Id;
             cart.Total = total;
-            var addCart = await _cartService.AddAsync(cart);
-            var cartItem = _mapper.Map<CartItem>(cartAddViewModal);
-            cartItem.Quantity = 1;
-            cartItem.CartId = addCart.Id;
-            var addCartItem = await _cartItemService.AddAsync(cartItem);
+            cart.CartItems = new List<CartItem> 
+            {
+                 _mapper.Map<CartItem>(cartAddViewModal.CartItem)
+            }; 
+            await _cartService.AddAsync(cart);
             return Ok(new Response { Status = "Success",Message = "Cart Item Added Successfully."});
         }
         catch (Exception ex)
@@ -62,12 +73,17 @@ public class CartController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getCartItemsByUserId/{id}")]
+    [Route("getCartItemsByUserId/{userID}")]
     public async Task<IActionResult> GetCartItemsByUserId(int userID)
     {
         try {
-
-            return Ok();
+            var cart = await _cartService.GetAllAsync();
+            if (cart == null && cart.Count() > 0)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart Items Not Found!" });
+            }
+            var cartItems = _mapper.Map<List<CartByUserIdViewModal>>(cart);
+            return Ok(cartItems);
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });

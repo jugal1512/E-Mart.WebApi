@@ -1,16 +1,19 @@
-﻿using E_Mart.Domain.Base;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace E_Mart.Domain.Carts;
-public class CartItemService : GenericService<CartItem>, ICartItemService
+public class CartItemService : ICartItemService
 {
     private readonly ICartItemRepository _cartItemRepository;
-    public CartItemService(ICartItemRepository cartItemRepository) : base(cartItemRepository)
+    public CartItemService(ICartItemRepository cartItemRepository)
     {
         _cartItemRepository = cartItemRepository;
+    }
+    public async Task<CartItem> AddCartItemAsync(CartItem cartItem)
+    {
+        return await _cartItemRepository.AddCartItemAsync(cartItem);
     }
 }

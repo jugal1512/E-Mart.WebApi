@@ -13,4 +13,9 @@ public class CartService : GenericService<Cart>, ICartService
     {
         _cartRepository = cartRepository;
     }
+
+    public async Task<Cart> getCartDetilsByUserIdAsync(int id)
+    {
+        return await _cartRepository.getCartDetilsByUserIdAsync(id);
+    }
 }
