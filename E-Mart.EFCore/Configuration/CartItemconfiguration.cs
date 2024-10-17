@@ -11,6 +11,7 @@ public class CartItemconfiguration : IEntityTypeConfiguration<CartItem>
         builder.HasKey(ci => ci.Id);
         builder.Property(ci => ci.CartId).IsRequired();
         builder.Property(ci => ci.ProductId).IsRequired();
+        builder.Property(ci => ci.ProductPrice).IsRequired();
         builder.Property(ci => ci.Quantity).IsRequired();
     }
 }

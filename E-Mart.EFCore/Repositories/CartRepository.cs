@@ -25,6 +25,6 @@ public class CartRepository : GenericRepository<Cart, EMartDbContext>, ICartRepo
 
     public async Task<Cart> getCartDetilsByUserIdAsync(int id)
     {
-        return await _eMartDbContext.Carts.AsNoTracking().Where(c => c.UserId == id).FirstOrDefaultAsync();
+        return await _eMartDbContext.Carts.AsNoTracking().Where(c => c.UserId == id).Include(ci => ci.CartItems).ThenInclude(p => p.Product).FirstOrDefaultAsync();
     }
 }
