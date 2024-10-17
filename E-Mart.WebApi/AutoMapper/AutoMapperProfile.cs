@@ -62,7 +62,7 @@ public class AutoMapperProfile:Profile
         //        }
         //})).ReverseMap();
         CreateMap<Cart, CartAddViewModal>().ForMember(dest => dest.CartItem,opt => opt.MapFrom(src => src.CartItems.FirstOrDefault())).ReverseMap();
-        CreateMap<CartItem, CartItemAddModal>().ReverseMap();
+        CreateMap<CartItem, CartItemAddViewModal>().ReverseMap();
         CreateMap<CartByUserIdViewModal, Cart>().ReverseMap();
     }
 }

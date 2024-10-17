@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Carts;
+using E_Mart.Domain.Customer;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models.Cart;
@@ -26,6 +27,36 @@ public class CartController : ControllerBase
         _mapper = mapper;
     }
 
+    [HttpGet]
+    [Route("viewCartAsync/{userID}")]
+    public async Task<IActionResult> ViewCartAsync()
+    {
+        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var user = await _userService.UserExistsAsync(userName);
+        if (string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+        }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
+        }
+        try
+        {
+            var cart = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            if (cart == null && !cart.CartItems.Any())
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart is Empty!" });
+            }
+            var cartItems = _mapper.Map<CartByUserIdViewModal>(cart);
+            return Ok(cartItems);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
     [HttpPost]
     [Route("addToCartAsync")]
     public async Task<IActionResult> AddToCartAsync([FromForm]CartAddViewModal cartAddViewModal)
@@ -45,25 +76,11 @@ public class CartController : ControllerBase
             var cartByUserId = await _cartService.getCartDetilsByUserIdAsync(user.Id);
             if (cartByUserId != null)
             {
-                cartByUserId.Total = cartByUserId.Total + productPrice;
-                var cartData = _mapper.Map<Cart>(cartByUserId);
-                await _cartService.UpdateAsync(cartData);
-                cartData.CartItems = new List<CartItem>
-                {
-                    _mapper.Map<CartItem>(cartAddViewModal.CartItem)
-                };
-                await _cartItemService.AddCartItemAsync(cartData.CartItems.FirstOrDefault());
+                await UpdateExistingCart(cartByUserId, cartAddViewModal.CartItem, productPrice);
                 return Ok(new Response { Status = "Success", Message = "Cart Item Added Successfully." });
             }
-            var total = productPrice;
-            var cart = _mapper.Map<Cart>(cartAddViewModal);
-            cart.UserId = user.Id;
-            cart.Total = total;
-            cart.CartItems = new List<CartItem> 
-            {
-                 _mapper.Map<CartItem>(cartAddViewModal.CartItem)
-            }; 
-            await _cartService.AddAsync(cart);
+
+            await CreateNewCart(user.Id, cartAddViewModal, productPrice);
             return Ok(new Response { Status = "Success",Message = "Cart Item Added Successfully."});
         }
         catch (Exception ex)
@@ -72,21 +89,139 @@ public class CartController : ControllerBase
         }
     }
 
-    [HttpGet]
-    [Route("getCartItemsByUserId/{userID}")]
-    public async Task<IActionResult> GetCartItemsByUserId(int userID)
+    [HttpPut]
+    [Route("updateCartItemsAsync")]
+    public async Task<IActionResult> UpdateCartItemsAsync([FromForm]CartItemUpdateViewModal cartItemUpdateViewModal)
     {
-        try {
-            var cart = await _cartService.GetAllAsync();
-            if (cart == null && cart.Count() > 0)
+        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var user = await _userService.UserExistsAsync(userName);
+        if (string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+        }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
+        }
+        try
+        {
+            var cart = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            if (cart == null)
             {
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart Items Not Found!" });
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart notFound!" });
             }
-            var cartItems = _mapper.Map<List<CartByUserIdViewModal>>(cart);
-            return Ok(cartItems);
+
+            var cartItem = cart.CartItems.FirstOrDefault(i => i.Id == cartItemUpdateViewModal.Id);
+            if (cartItem == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound,new Response { Status = "Error",Message = "Cart Item not Found!"});    
+            }
+            double productPrice = await _productService.GetProductPriceAsync(cartItem.ProductId);
+            cartItem.Quantity = cartItemUpdateViewModal.Quantity;
+            cart.Total = cart.CartItems.Sum(i => i.Quantity * i.ProductPrice);
+            await _cartItemService.UpdateCartItemAsync(cartItem);
+            await _cartService.UpdateAsync(cart);
+            return Ok(new Response { Status = "Success",Message = "Cart Item Updated Successfully."});
         }
         catch (Exception ex) {
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
         }
+    }
+
+    [HttpDelete]
+    [Route("removeCartItemAsync")]
+    public async Task<IActionResult> RemoveCartItemAsync(int itemId)
+    {
+        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var user = await _userService.UserExistsAsync(userName);
+        if (string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+        }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
+        }
+        try {
+            var cart = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            if (cart == null) {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart notFound!" });
+            }
+
+            var cartItem = cart.CartItems.FirstOrDefault(i => i.Id == itemId);
+            if (cartItem == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart Item not found!" });
+            }
+
+            cart.Total -= cartItem.ProductPrice * cartItem.Quantity;
+
+            await _cartItemService.RemoveCartItemAsync(itemId);
+
+            var updatedCart = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            updatedCart.Total = cart.Total;
+            await _cartService.UpdateAsync(updatedCart);   
+
+            return Ok(new Response { Status = "Success",Message = "Cart Item Remove Successfully."});
+        }
+        catch (Exception ex) {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
+    [HttpDelete]
+    [Route("clearCartAsync/{userId}")]
+    public async Task<IActionResult> ClearCartAsync(int userId)
+    {
+        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+        var user = await _userService.UserExistsAsync(userName);
+        if (string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized(new Response { Status = "Error", Message = "User not authenticated." });
+        }
+        if (user == null)
+        {
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User Not Found!" });
+        }
+        try {
+            var cart = await _cartService.getCartDetilsByUserIdAsync(user.Id);
+            if (cart == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Cart notFound!" });
+            }
+            cart.Total = 0;
+            await _cartService.UpdateAsync(cart);
+            await _cartItemService.RemoveCartItemsAsync(cart.Id);
+            return Ok(new Response { Status = "Success", Message = "Cart Items Remove Successfully." });
+        }
+        catch(Exception ex) {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
+
+    private async Task UpdateExistingCart(Cart cart,CartItemAddViewModal cartItem,double productPrice)
+    {
+        cart.Total = cart.Total + productPrice;
+        await _cartService.UpdateAsync(cart);
+        var newCartItem = _mapper.Map<CartItem>(cartItem);
+        newCartItem.CartId = cart.Id;
+        newCartItem.ProductPrice = (int)productPrice;
+        await _cartItemService.AddCartItemAsync(newCartItem);
+    }
+
+    private async Task CreateNewCart(int userId, CartAddViewModal cartAddViewModal, double productPrice)
+    {
+        var cart = _mapper.Map<Cart>(cartAddViewModal);
+        cart.UserId = userId;        
+        cart.Total = productPrice;
+        cart.CartItems = new List<CartItem>
+        {
+                _mapper.Map<CartItem>(cartAddViewModal.CartItem)
+        };
+        foreach (var cartItem in cart.CartItems)
+        {
+            cartItem.ProductPrice = (int)productPrice;
+        }
+        await _cartService.AddAsync(cart);
     }
 }

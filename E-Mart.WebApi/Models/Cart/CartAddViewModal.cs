@@ -4,5 +4,5 @@ namespace E_Mart.WebApi.Models.Cart;
 
 public class CartAddViewModal
 {
-    public CartItemAddModal CartItem { get; set; }
+    public CartItemAddViewModal CartItem { get; set; }
 }
