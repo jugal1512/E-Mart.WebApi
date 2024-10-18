@@ -5,4 +5,5 @@ namespace E_Mart.WebApi.Controllers;
 [Route("api/[controller]")]
 public class WishlistController : ControllerBase
 {
+
 }
