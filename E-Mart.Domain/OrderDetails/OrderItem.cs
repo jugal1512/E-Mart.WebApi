@@ -1,9 +1,9 @@
-﻿using E_Mart.Domain.Base;
-using E_Mart.Domain.Products;
+﻿using E_Mart.Domain.Products;
 
 namespace E_Mart.Domain.OrderDetails;
-public class OrderItem : BaseEntity
+public class OrderItem 
 {
+    public int Id { get; set; }
     public int orderId { get; set; }
     public int ProductId { get; set; }
     public int Quantity { get; set; }

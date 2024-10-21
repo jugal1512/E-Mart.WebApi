@@ -5,11 +5,13 @@ using E_Mart.Domain.Categories;
 using E_Mart.Domain.Customer;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
+using E_Mart.Domain.Wishlists;
 using E_Mart.WebApi.Models.Authentication;
 using E_Mart.WebApi.Models.Cart;
 using E_Mart.WebApi.Models.Category;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.User;
+using E_Mart.WebApi.Models.Wishlist;
 
 namespace E_Mart.WebApi.AutoMapper;
 
@@ -22,6 +24,7 @@ public class AutoMapperProfile:Profile
         CreateCategoryMaps();
         CreateProductMaps();
         CreateCartMaps();
+        CreateWishlistMaps();
     }
 
     private void CreateRoleMaps()
@@ -64,5 +67,11 @@ public class AutoMapperProfile:Profile
         CreateMap<Cart, CartAddViewModal>().ForMember(dest => dest.CartItem,opt => opt.MapFrom(src => src.CartItems.FirstOrDefault())).ReverseMap();
         CreateMap<CartItem, CartItemAddViewModal>().ReverseMap();
         CreateMap<CartByUserIdViewModal, Cart>().ReverseMap();
+    }
+
+    private void CreateWishlistMaps()
+    {
+        CreateMap<wishlist, WishlistAddViewModal>().ReverseMap();
+        CreateMap<wishlist, WishlistViewModal>().ReverseMap();
     }
 }

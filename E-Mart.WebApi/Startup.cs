@@ -2,6 +2,7 @@
 using E_Mart.Domain.Categories;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
+using E_Mart.Domain.Wishlists;
 using E_Mart.EFCore.Data;
 using E_Mart.EFCore.Repositories;
 using E_Mart.WebApi.Utilities.Email;
@@ -68,6 +69,9 @@ public class Startup
         services.AddScoped<CartItemService>();
         services.AddTransient<ICartItemService, CartItemService>();
         services.AddTransient<ICartItemRepository, CartItemRepository>();
+        services.AddScoped<WishlistService>();
+        services.AddTransient<IWishlistService, WishlistService>();
+        services.AddTransient<IWishlistRepository, WishlistRepository>();
 
         //services.AddControllers();
         services.AddControllers().AddNewtonsoftJson(options =>
