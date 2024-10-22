@@ -1,7 +1,6 @@
 ﻿using E_Mart.Domain.Base;
-using E_Mart.Domain.Carts;
 using E_Mart.Domain.Categories;
-using E_Mart.Domain.Wishlists;
+using E_Mart.Domain.Sellers;
 
 namespace E_Mart.Domain.Products;
 public class Product : BaseEntity
@@ -12,8 +11,10 @@ public class Product : BaseEntity
     public int ActualPrice { get; set; }
     public int Stock { get; set; }
     public int CategoryId { get; set; }
-    public string ProductImage { get; set; }
+    public int SellerId { get; set; }
     public string CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
     public virtual SubCategories SubCategories { get; set; }
+    public virtual List<Seller> Sellers { get; set; }
+    public virtual List<ProductImages> ProductImages { get; set; }
 }

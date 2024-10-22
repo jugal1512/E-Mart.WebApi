@@ -199,7 +199,7 @@ public class CartController : ControllerBase
         }
     }
 
-    private async Task UpdateExistingCart(Cart cart,CartItemAddViewModal cartItem,double productPrice)
+    private async Task UpdateExistingCart(Cart cart,CartItemAddViewModal cartItem,decimal productPrice)
     {
         cart.Total = cart.Total + productPrice;
         await _cartService.UpdateAsync(cart);
@@ -209,7 +209,7 @@ public class CartController : ControllerBase
         await _cartItemService.AddCartItemAsync(newCartItem);
     }
 
-    private async Task CreateNewCart(int userId, CartAddViewModal cartAddViewModal, double productPrice)
+    private async Task CreateNewCart(int userId, CartAddViewModal cartAddViewModal, decimal productPrice)
     {
         var cart = _mapper.Map<Cart>(cartAddViewModal);
         cart.UserId = userId;        

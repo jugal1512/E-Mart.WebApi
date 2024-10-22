@@ -14,6 +14,7 @@ namespace E_Mart.Domain.Users
         public string PostalCode { get; set; }
         public string Country { get; set; }
         public string Mobile { get; set; }
+        public bool IsDefault { get; set; }
         public virtual User User { get; set; }
     }
 }

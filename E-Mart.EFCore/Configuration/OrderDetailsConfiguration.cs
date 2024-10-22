@@ -11,8 +11,8 @@ public class OrderDetailsConfiguration : IEntityTypeConfiguration<OrderDetails>
         builder.ToTable("OrderDetails");
         builder.HasKey(o => o.Id);
         builder.Property(o => o.UserId).IsRequired();
-        builder.Property(o => o.TotalAmount).IsRequired();
-        builder.Property(o => o.CreatedAt).IsRequired();
+        builder.Property(o => o.TotalAmount).IsRequired().HasColumnType("decimal(7,2)");
+        builder.Property(o => o.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(o => o.UpdatedAt);
 
         builder

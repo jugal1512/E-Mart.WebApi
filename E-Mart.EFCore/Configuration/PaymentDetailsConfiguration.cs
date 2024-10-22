@@ -10,10 +10,10 @@ public class PaymentDetailsConfiguration : IEntityTypeConfiguration<PaymentDetai
         builder.ToTable("PaymentDetails");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.OrderId).IsRequired();
-        builder.Property(p => p.Amount).IsRequired();
+        builder.Property(p => p.Amount).IsRequired().HasColumnType("decimal(7,2)");
         builder.Property(p => p.Provider).IsRequired();
         builder.Property(p => p.Status).IsRequired();
-        builder.Property(p => p.CreatedAt).IsRequired();
+        builder.Property(p => p.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(p => p.UpdatedAt);
     }
 }
