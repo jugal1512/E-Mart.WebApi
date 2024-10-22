@@ -13,9 +13,9 @@ public class SubCategoriesConfiguration : IEntityTypeConfiguration<SubCategories
         builder.Property(c => c.Name).IsRequired();
         builder.Property(c => c.Description).IsRequired().HasMaxLength(250);
         builder.Property(c => c.CategoryImage).IsRequired();
-        builder.Property(c => c.CreatedAt).IsRequired();
+        builder.Property(c => c.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(c => c.UpdatedAt);
-        builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false);
+        builder.Property(c => c.IsDeleted).HasDefaultValue(false);
 
         builder
             .HasOne(sc => sc.Category)

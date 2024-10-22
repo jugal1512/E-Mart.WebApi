@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\E-Mart.Domain\E-Mart.Domain.csproj" />
     <ProjectReference Include="..\E-Mart.EFCore\E-Mart.EFCore.csproj" />
+    <ProjectReference Include="..\E-Mart.Utility\E-Mart.Utility.csproj" />
   </ItemGroup>
 
 </Project>

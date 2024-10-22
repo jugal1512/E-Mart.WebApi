@@ -10,11 +10,11 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.ToTable("Carts");
         builder.HasKey(c => c.Id);
         builder.Property(c => c.UserId).IsRequired();
-        builder.Property(c => c.Total).IsRequired();
-        builder.Property(c => c.CreatedAt).IsRequired();
+        builder.Property(c => c.Total).IsRequired().HasColumnType("decimal(7,2)");
+        builder.Property(c => c.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(c => c.UpdatedAt);
-        builder.Property(c => c.IsDeleted).HasColumnType("bit").HasDefaultValue(false);
-        builder.Property(p => p.IsActive).IsRequired().HasColumnType("bit").HasDefaultValue(true);
+        builder.Property(c => c.IsDeleted).HasDefaultValue(false);
+        builder.Property(p => p.IsActive).IsRequired().HasDefaultValue(true);
 
         builder
             .HasMany(c => c.CartItems)

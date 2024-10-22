@@ -11,12 +11,19 @@ public class Order_ItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.HasKey(o => o.Id);
         builder.Property(o => o.orderId).IsRequired();
         builder.Property(o => o.ProductId).IsRequired();
+        builder.Property(o => o.SellerId).IsRequired();
         builder.Property(o => o.Quantity).IsRequired();
 
         builder
             .HasOne(oi => oi.OrderDetails)
             .WithMany(od => od.OrderItems)
             .HasForeignKey(oi => oi.orderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(oi => oi.Seller)
+            .WithMany()
+            .HasForeignKey(oi => oi.SellerId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

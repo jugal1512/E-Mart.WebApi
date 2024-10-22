@@ -11,7 +11,7 @@ public class WishlistConfiguration : IEntityTypeConfiguration<wishlist>
         builder.HasKey(w => w.Id);
         builder.Property(w => w.ProductId).IsRequired();
         builder.Property(w => w.UserId).IsRequired();
-        builder.Property(w => w.CreatedAt).IsRequired();
+        builder.Property(w => w.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(w => w.DeletedAt);
     }
 }

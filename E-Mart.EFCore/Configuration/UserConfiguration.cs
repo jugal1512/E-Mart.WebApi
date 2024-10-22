@@ -1,5 +1,4 @@
 ﻿using E_Mart.Domain.Customer;
-using E_Mart.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,7 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Email).IsRequired();
         builder.Property(u => u.PasswordHash).IsRequired();
         builder.Property(u => u.RoleId).IsRequired();
-        builder.Property(u => u.CreatedAt);
+        builder.Property(u => u.CreatedAt).HasDefaultValueSql("GETDATE()");
         builder.Property(u => u.UpdatedAt);
 
         builder
