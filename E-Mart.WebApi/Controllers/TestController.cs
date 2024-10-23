@@ -1,4 +1,4 @@
-﻿using E_Mart.WebApi.Utilities.FirebaseImageUpload;
+﻿using E_Mart.Utility.FirebaseImageUpload;
 using Firebase.Storage;
 using Microsoft.AspNetCore.Mvc;
 

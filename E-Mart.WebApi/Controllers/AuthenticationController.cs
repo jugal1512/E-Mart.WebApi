@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Users;
-using E_Mart.WebApi.Models;
 using E_Mart.WebApi.Models.Authentication;
 using E_Mart.WebApi.Models.Response;
+using E_Mart.WebApi.Settings;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,15 +16,17 @@ namespace E_Mart.WebApi.Controllers;
 [Route("api/[controller]")]
 public class AuthenticationController : ControllerBase
 {
+    #region "Variable Declarations"
     private readonly UserService _userService;
     private readonly RoleService _roleService;
-    private readonly IConfiguration _configuration;
+    private readonly JWTSettings _JWTSettings;
     private readonly IMapper _mapper;
-    public AuthenticationController(UserService userService,RoleService roleService,IConfiguration configuration,IMapper mapper)
+    #endregion
+    public AuthenticationController(UserService userService,RoleService roleService,IOptions<JWTSettings> JWTSettings,IMapper mapper)
     {
         _userService = userService;
         _roleService = roleService;
-        _configuration = configuration;
+        _JWTSettings = JWTSettings.Value;
         _mapper = mapper;
     }
 
@@ -82,11 +85,11 @@ public class AuthenticationController : ControllerBase
 
     private JwtSecurityToken GetToken(List<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_JWTSettings.Secret));
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["JWT:ValidIssuer"],
-            audience: _configuration["JWT:ValidAudience"],
+            issuer: _JWTSettings.ValidIssuer,
+            audience: _JWTSettings.ValidAudience,
             expires: DateTime.Now.AddHours(3),
             claims: authClaims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)

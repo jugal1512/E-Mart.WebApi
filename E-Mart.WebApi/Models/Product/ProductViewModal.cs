@@ -1,4 +1,6 @@
-﻿namespace E_Mart.WebApi.Models.Product;
+﻿using E_Mart.Domain.Products;
+
+namespace E_Mart.WebApi.Models.Product;
 
 public class ProductViewModal
 {
@@ -16,5 +18,6 @@ public class ProductViewModal
     public bool IsActive { get; set; }
     public string CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
+    public List<ProductImages> ProductImages { get; set; }
 
 }

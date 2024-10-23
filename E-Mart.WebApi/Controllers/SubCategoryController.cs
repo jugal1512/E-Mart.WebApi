@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Categories;
+using E_Mart.Utility.FirebaseImageUpload;
 using E_Mart.WebApi.Models.Category;
 using E_Mart.WebApi.Models.Response;
-using E_Mart.WebApi.Utilities.FirebaseImageUpload;
+using E_Mart.WebApi.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 
 namespace E_Mart.WebApi.Controllers;
@@ -13,16 +15,18 @@ namespace E_Mart.WebApi.Controllers;
 [Route("api/[controller]")]
 public class SubCategoryController : ControllerBase
 {
+    #region "Variable Declarations"
     private readonly CategoryService _categoryService;
     private readonly SubCategoriesService _subCategoryService;
-    private readonly string _fileUploadFolder;
+    private readonly FileUploadSettings _fileUploadSettings;
     private readonly IFirebaseImageUploadService _firebaseImageUploadService;
     private readonly IMapper _mapper;
-    public SubCategoryController(CategoryService categoryService, SubCategoriesService subCategoryService, IMapper mapper, IConfiguration configuration, IFirebaseImageUploadService firebaseImageUploadService)
+    #endregion
+    public SubCategoryController(CategoryService categoryService, SubCategoriesService subCategoryService, IMapper mapper, IOptions<FileUploadSettings> fileUploadSettings, IFirebaseImageUploadService firebaseImageUploadService)
     {
-                _categoryService = categoryService;
+        _categoryService = categoryService;
         _subCategoryService = subCategoryService;
-        _fileUploadFolder = configuration["FileUploadSettings:CategoryPage"];
+        _fileUploadSettings = fileUploadSettings.Value;
         _firebaseImageUploadService = firebaseImageUploadService;
         _mapper = mapper;
     }
@@ -164,7 +168,7 @@ public class SubCategoryController : ControllerBase
     {
         var categoryImageName = Guid.NewGuid().ToString() + "_" + categoryImage.FileName;
         var filePath = Path.Combine(Path.GetTempPath(), categoryImageName);
-        var fileUploadFolder = _fileUploadFolder;
+        var fileUploadFolder = _fileUploadSettings.CategoryPage;
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await categoryImage.CopyToAsync(stream);
@@ -181,7 +185,7 @@ public class SubCategoryController : ControllerBase
 
     private async void DeleteCategoryImage(string oldCategoryImage)
     {
-        var fileUploadFolder = _fileUploadFolder;
+        var fileUploadFolder = _fileUploadSettings.CategoryPage;
         var firebaseGetImage = new FirebaseImageUploadModal
         {
             fileUploadFolder = fileUploadFolder,

@@ -1,7 +1,6 @@
-﻿
-using Firebase.Storage;
+﻿using Firebase.Storage;
 
-namespace E_Mart.WebApi.Utilities.FirebaseImageUpload;
+namespace E_Mart.Utility.FirebaseImageUpload;
 
 public class FirebaseImageUploadService : IFirebaseImageUploadService
 {
@@ -24,7 +23,7 @@ public class FirebaseImageUploadService : IFirebaseImageUploadService
         var downloadUrl = await storage
             .Child(firebaseImageUpload.fileUploadFolder)
             .Child(firebaseImageUpload.fileName)
-            .PutAsync(System.IO.File.OpenRead(firebaseImageUpload.filePath));
+            .PutAsync(File.OpenRead(firebaseImageUpload.filePath));
         return downloadUrl;
     }
 

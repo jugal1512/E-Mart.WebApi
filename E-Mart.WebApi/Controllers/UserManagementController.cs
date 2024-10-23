@@ -28,7 +28,7 @@ public class UserManagementController : ControllerBase
     }
     
     [HttpPost]
-    [Route("RegisterUser")]
+    [Route("registerUser")]
     public async Task<IActionResult> RegisterUser(UserDto userDto)
     {
         try
@@ -45,10 +45,10 @@ public class UserManagementController : ControllerBase
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role doesn't Exists!" });
                 }
-                userDto.RoleId = userRoleExists.Id;
                 var PasswordHash = await HashPasword(userDto.PasswordHash);
                 userDto.PasswordHash = PasswordHash;
                 var user = _mapper.Map<User>(userDto);
+                user.RoleId = userRoleExists.Id;
                 user.CreatedAt = DateTime.UtcNow;
                 user.UpdatedAt = null;
                 var addUser = await _userService.RegisterUserAsync(user);
