@@ -1,6 +1,6 @@
-﻿using MailKit.Security;
+﻿using E_Mart.Utility.Shared;
 using MailKit.Net.Smtp;
-using Microsoft.AspNetCore.Mvc;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Carts;
-using E_Mart.Domain.Customer;
 using E_Mart.Domain.Products;
 using E_Mart.Domain.Users;
 using E_Mart.WebApi.Models.Cart;

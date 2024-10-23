@@ -1,5 +1,4 @@
-﻿namespace E_Mart.WebApi.Utilities.Email;
-
+﻿namespace E_Mart.Utility.Shared;
 public class MailSettings
 {
     public string Mail { get; set; }

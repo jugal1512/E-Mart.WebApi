@@ -5,8 +5,10 @@ using E_Mart.Domain.Users;
 using E_Mart.Domain.Wishlists;
 using E_Mart.EFCore.Data;
 using E_Mart.EFCore.Repositories;
+using E_Mart.Utility.FirebaseImageUpload;
+using E_Mart.Utility.Shared;
+using E_Mart.WebApi.Settings;
 using E_Mart.WebApi.Utilities.Email;
-using E_Mart.WebApi.Utilities.FirebaseImageUpload;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,9 +36,14 @@ public class Startup
         //Add Automapper
         services.AddAutoMapper(typeof(Startup));
 
-        //Email Service
+        //App Settings
+        services.Configure<AppSettings>(_configuration.GetSection("AppSettings"));
+        //Mail Settings
         services.Configure<MailSettings>(_configuration.GetSection("MailSettings"));
-        services.AddTransient<IEmailService, EmailService>();
+        //JWT Settings
+        services.Configure<JWTSettings>(_configuration.GetSection("JWT"));
+        //FileUpload Settings
+        services.Configure<FileUploadSettings>(_configuration.GetSection("FileUploadSettings"));
 
         //Image Upload Service
         services.AddTransient<IFirebaseImageUploadService, FirebaseImageUploadService>();
@@ -72,6 +79,7 @@ public class Startup
         services.AddScoped<WishlistService>();
         services.AddTransient<IWishlistService, WishlistService>();
         services.AddTransient<IWishlistRepository, WishlistRepository>();
+        services.AddTransient<IEmailService, EmailService>();
 
         //services.AddControllers();
         services.AddControllers().AddNewtonsoftJson(options =>

@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Categories;
 using E_Mart.Domain.Products;
+using E_Mart.Domain.Users;
+using E_Mart.Utility.FirebaseImageUpload;
 using E_Mart.WebApi.Models.Product;
 using E_Mart.WebApi.Models.Response;
-using E_Mart.WebApi.Utilities.FirebaseImageUpload;
+using E_Mart.WebApi.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace E_Mart.WebApi.Controllers;
@@ -14,60 +16,66 @@ namespace E_Mart.WebApi.Controllers;
 [Route("api/[controller]")]
 public class ProductController : ControllerBase
 {
-    //private readonly ProductService _productService;
-    //private readonly SubCategoriesService _subCategoriesService;
-    //private readonly string _fileUploadFolder;
-    //private readonly IFirebaseImageUploadService _firebaseImageUploadService;
-    //private readonly IMapper _mapper;
-    //public ProductController(ProductService productService, SubCategoriesService subCategoriesService, IMapper mapper,IConfiguration configuration, IFirebaseImageUploadService firebaseImageUploadService)
-    //{
-    //    _productService = productService;
-    //    _subCategoriesService = subCategoriesService;
-    //    _fileUploadFolder = configuration["FileUploadSettings:ProductPage"];
-    //    _firebaseImageUploadService = firebaseImageUploadService;
-    //    _mapper = mapper;
-    //} 
+    #region "Variable Declarations"
+    private readonly ProductService _productService;
+    private readonly SubCategoriesService _subCategoriesService;
+    private readonly FileUploadSettings _fileUploadSettings;
+    private readonly IFirebaseImageUploadService _firebaseImageUploadService;
+    private readonly UserService _userService;
+    private readonly IMapper _mapper;
+    #endregion
+    public ProductController(ProductService productService, SubCategoriesService subCategoriesService, UserService userService, IOptions<FileUploadSettings> fileUploadSettings, IMapper mapper, IFirebaseImageUploadService firebaseImageUploadService)
+    {
+        _productService = productService;
+        _subCategoriesService = subCategoriesService;
+        _userService = userService;
+        _fileUploadSettings = fileUploadSettings.Value;
+        _firebaseImageUploadService = firebaseImageUploadService;
+        _mapper = mapper;
+    }
 
-    //[HttpGet]
-    //[Route("GetAllProducts")]
-    //public async Task<IActionResult> GetAllProducts()
-    //{
-    //    try
-    //    {
-    //        var products = await _productService.GetAllAsync();
-    //        var productList = _mapper.Map<List<ProductViewModal>>(products);
-    //        return Ok(productList);
-    //    }
-    //    catch (Exception ex) {
-    //        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
-    //    }
-    //}
+    [HttpGet]
+    [Route("GetAllProducts")]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        try
+        {
+            var products = await _productService.GetAllAsync();
+            var productList = _mapper.Map<List<ProductViewModal>>(products);
+            return Ok(productList);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
 
-    //[Authorize(Roles = "Admin,Seller")]
-    //[HttpPost]
-    //[Route("createProductAsync")]
-    //public async Task<IActionResult> CreateProductAsync([FromForm] ProductDto productDto)
-    //{
-    //    try
-    //    {
-    //        string userName = User.FindFirst(ClaimTypes.Name)?.Value;
-    //        var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
-    //        if (subCategoryExist == null)
-    //        {
-    //            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Sub Category is Not Exists!" });
-    //        }
-    //        var productImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
-    //        var product = _mapper.Map<Product>(productDto);
-    //        product.ProductImage = productImageNameList;
-    //        product.CreatedBy = userName;
-    //        product.CategoryId = subCategoryExist.Id;
-    //        await _productService.AddAsync(product);
-    //        return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
-    //    }
-    //    catch (Exception ex) {
-    //        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
-    //    }
-    //}
+    [Authorize(Roles = "Admin,Seller")]
+    [HttpPost]
+    [Route("createProductAsync")]
+    public async Task<IActionResult> CreateProductAsync([FromForm] ProductDto productDto)
+    {
+        try
+        {
+            string userName = User.FindFirst(ClaimTypes.Name)?.Value;
+            var subCategoryExist = await _subCategoriesService.GetSubCategoryByNameAsync(productDto.SubCategoryName);
+            if (subCategoryExist == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Sub Category is Not Exists!" });
+            }
+            var productImageNameList = await SaveProductImagesAsync(productDto.ProductImage);
+            var product = _mapper.Map<Product>(productDto);
+            product.ProductImages = productImageNameList;
+            product.CreatedBy = userName;
+            product.CategoryId = subCategoryExist.Id;
+            await _productService.AddAsync(product);
+            return Ok(new Response { Status = "Success", Message = "Product Add Successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = ex.Message });
+        }
+    }
 
     //[Authorize(Roles = "Admin,Seller")]
     //[HttpPut]
@@ -154,29 +162,37 @@ public class ProductController : ControllerBase
     //    }
     //}
 
-    //private async Task<string> SaveProductImagesAsync(List<IFormFile> productImages)
-    //{
-    //    List<string> productImageList = new List<string>();
-    //    foreach (var item in productImages)
-    //    {
-    //        var ProductImageName = Guid.NewGuid() + "_" + item.FileName;
-    //        var filePath = Path.Combine(Path.GetTempPath(), ProductImageName);
-    //        var fileUploadFolder = _fileUploadFolder;
-    //        using (var stream = new FileStream(filePath, FileMode.Create))
-    //        {
-    //            await item.CopyToAsync(stream);
-    //        }
-    //        productImageList.Add(ProductImageName);
-    //        var firebaseImageUpload = new FirebaseImageUploadModal
-    //        {
-    //            fileUploadFolder = fileUploadFolder,
-    //            fileName = ProductImageName,
-    //            filePath = filePath,
-    //        };
-    //        var downloadUrl = await _firebaseImageUploadService.FirebaseUploadImageAsync(firebaseImageUpload);
-    //    }
-    //    return string.Join(",", productImageList);
-    //}
+    private async Task<List<ProductImages>> SaveProductImagesAsync(List<IFormFile> productImages)
+    {
+        var productImageList = new List<ProductImages>();
+        foreach (var item in productImages)
+        {
+            var ProductImageName = Guid.NewGuid() + "_" + item.FileName;
+            var filePath = Path.Combine(Path.GetTempPath(), ProductImageName);
+            var fileUploadFolder = _fileUploadSettings.ProductPage;
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await item.CopyToAsync(stream);
+            }
+
+            var firebaseImageUpload = new FirebaseImageUploadModal
+            {
+                fileUploadFolder = fileUploadFolder,
+                fileName = ProductImageName,
+                filePath = filePath,
+            };
+            var downloadUrl = await _firebaseImageUploadService.FirebaseUploadImageAsync(firebaseImageUpload);
+
+            var productImage = new ProductImages
+            {
+                ImageUrl = downloadUrl,
+                IsPrimary = productImageList.Count == 0,
+            };
+            productImageList.Add(productImage);
+        }
+        return productImageList;
+    }
 
     //private async Task DeleteProductImageAsync(List<string> productImageNameList)
     //{

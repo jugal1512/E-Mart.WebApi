@@ -1,4 +1,6 @@
-﻿namespace E_Mart.WebApi.Utilities.Email;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace E_Mart.WebApi.Utilities.Email;
 
 public class MailRequest
 {

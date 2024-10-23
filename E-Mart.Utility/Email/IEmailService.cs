@@ -1,6 +1,4 @@
-﻿using AutoMapper.Internal;
-
-namespace E_Mart.WebApi.Utilities.Email;
+﻿namespace E_Mart.WebApi.Utilities.Email;
 
 public interface IEmailService
 {
