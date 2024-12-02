@@ -46,7 +46,7 @@ public class AuthenticationController : ControllerBase
                 var userRoleExist = await _roleService.RoleExists(userDto.RoleName);
                 if (userRoleExist == null)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role deesn't Exists!" });
+                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role doesn't Exists!" });
                 }
                 authClaims.Add(new Claim(ClaimTypes.Role, userRoleExist.RoleName));
 

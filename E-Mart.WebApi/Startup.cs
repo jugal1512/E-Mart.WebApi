@@ -113,6 +113,17 @@ public class Startup
             };
         });
 
+        // add cors service
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAnyOrigin", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyHeader()
+                       .AllowAnyMethod();
+            });
+        });
+
         services.AddEndpointsApiExplorer();
         //services.AddSwaggerGen();
         services.AddSwaggerGen(opt =>
@@ -155,6 +166,8 @@ public class Startup
             
         app.UseSwagger();
         app.UseSwaggerUI();
+
+        app.UseCors("AllowAnyOrigin");
 
         app.UseHttpsRedirection();
 

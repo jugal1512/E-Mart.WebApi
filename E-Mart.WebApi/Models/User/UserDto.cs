@@ -11,5 +11,4 @@ public class UserDto
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public string RoleName { get; set; }
-    public virtual List<UserDetailsDto> UserAddresses { get; set; }
 }
