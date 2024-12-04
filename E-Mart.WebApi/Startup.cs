@@ -128,7 +128,7 @@ public class Startup
         //services.AddSwaggerGen();
         services.AddSwaggerGen(opt =>
         {
-            opt.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAPI", Version = "v1" });
+            opt.SwaggerDoc("v1", new OpenApiInfo { Title = "E-MartApi", Version = "v1" });
             opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,

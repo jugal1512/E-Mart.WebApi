@@ -15,10 +15,12 @@ namespace E_Mart.WebApi.Controllers;
 [Route("api/[controller]")]
 public class UserManagementController : ControllerBase
 {
+    #region "Variable Declaration"
     private readonly RoleService _roleService;
     private readonly UserService _userService;
     private readonly IEmailService _emailService;
     private readonly IMapper _mapper;
+    #endregion
     public UserManagementController(IMapper mapper,RoleService roleService,UserService userService, IEmailService emailService)
     {
         _mapper = mapper;
