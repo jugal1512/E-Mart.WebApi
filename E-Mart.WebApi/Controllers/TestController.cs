@@ -8,11 +8,6 @@ namespace E_Mart.WebApi.Controllers
     [Route("api/[controller]")]
     public class TestController : Controller
     {
-        //private static string apiKey = "AIzaSyD7740AvtJdRskX1sMEWjQkYCr8YtqT6IM";
-        //private static string bucket = "practice-bdcd1.appspot.com";
-        //private static string authEmail = "jugallotwala@gmail.com";
-        //private static string authPassword = "Jugal15012002";
-
         private readonly IFirebaseImageUploadService _firebaseImageUploadService;
         private readonly string _fileUploadFolder;
         public TestController(IFirebaseImageUploadService firebaseImageUploadService,IConfiguration configuration)
