@@ -32,7 +32,7 @@ public class AuthenticationController : ControllerBase
 
     [HttpPost]
     [Route("Login")]
-    public async Task<IActionResult> Login(LoginDto userDto)
+    public async Task<IActionResult> LoginAsync(LoginDto userDto)
     {
         try {
             var userExists = await _userService.UserExistsAsync(userDto.UserName);
@@ -46,7 +46,7 @@ public class AuthenticationController : ControllerBase
                 var userRoleExist = await _roleService.RoleExists(userDto.RoleName);
                 if (userRoleExist == null)
                 {
-                    return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role doesn't Exists!" });
+                    return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "Role doesn't Exists!" });
                 }
                 authClaims.Add(new Claim(ClaimTypes.Role, userRoleExist.RoleName));
 

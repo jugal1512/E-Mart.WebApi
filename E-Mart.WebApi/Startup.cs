@@ -116,7 +116,7 @@ public class Startup
         // add cors service
         services.AddCors(options =>
         {
-            options.AddPolicy("AllowAnyOrigin", builder =>
+            options.AddPolicy("AllowAnyOrigin", builder =>  
             {
                 builder.AllowAnyOrigin()
                        .AllowAnyHeader()

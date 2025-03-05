@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using E_Mart.Domain.Customer;
 using E_Mart.Domain.Users;
-using E_Mart.WebApi.Models;
 using E_Mart.WebApi.Models.Response;
 using E_Mart.WebApi.Models.User;
 using E_Mart.WebApi.Utilities.Email;
@@ -30,7 +29,7 @@ public class UserManagementController : ControllerBase
     }
     
     [HttpPost]
-    [Route("registerUser")]
+    [Route("RegisterUser")]
     public async Task<IActionResult> RegisterUser(UserDto userDto)
     {
         try
@@ -56,12 +55,12 @@ public class UserManagementController : ControllerBase
                 var addUser = await _userService.RegisterUserAsync(user);
                 if (addUser != null)
                 {
-                    return Ok(new Response { Status = "Success", Message = "User Created Is Successfully." });
+                    return Ok(new Response { Status = "Success", Message = "User register successfully." });
                 }
                 else
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User can not Created!" });
-                }                
+                }
             }
         }
         catch (Exception ex)
